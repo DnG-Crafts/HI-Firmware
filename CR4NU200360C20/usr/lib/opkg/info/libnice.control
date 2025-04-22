@@ -1,7 +1,7 @@
 Package: libnice
 Version: 0.1.18
 Depends: libc, librt, libpthread, glib2, libopenssl1.1
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/libnice
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/libnice
 SourceName: libnice
 Section: creality
 SourceDateEpoch: 1709082836

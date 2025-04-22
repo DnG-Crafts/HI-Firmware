@@ -471,8 +471,10 @@ class ProbePointsHelper:
         # self.safe_z_home = self.printer.lookup_object('safe_z_home')
         # self.safe_z_home.cmd_G28(g28_gcmd)
         # i = 0
+        gcode = self.printer.lookup_object('gcode')
         while 1:
-            done = self._move_next()
+            done = self._move_next()                      
+            self.gcode.run_script_from_command('G4 P1000 \nM400') 
             if done:
                 break
             pos = probe.run_probe(gcmd)

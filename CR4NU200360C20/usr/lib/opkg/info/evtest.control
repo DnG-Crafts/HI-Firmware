@@ -1,7 +1,7 @@
 Package: evtest
 Version: 1.34-3
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/evtest
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/evtest
 SourceName: evtest
 License: GPL-2.0-or-later
 LicenseFiles: COPYING

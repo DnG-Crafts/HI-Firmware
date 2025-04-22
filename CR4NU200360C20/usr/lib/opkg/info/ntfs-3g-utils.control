@@ -1,7 +1,7 @@
 Package: ntfs-3g-utils
 Version: 2017.3.23-2-fuseext
 Depends: libc, librt, libpthread, ntfs-3g, libgcrypt, libuuid1
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/ntfs-3g
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/ntfs-3g
 SourceName: ntfs-3g-utils
 License: GPL-2.0-only LGPL-2.1-or-later
 LicenseFiles: COPYING COPYING.LIB

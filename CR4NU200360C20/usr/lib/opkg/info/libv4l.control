@@ -1,7 +1,7 @@
 Package: libv4l
 Version: 1.20.0-1
 Depends: libc, librt, libpthread, libpthread, librt
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/libs/libv4l
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/libv4l
 SourceName: libv4l
 License: GPL-2.0 LGPL-2.1
 LicenseFiles: COPYING COPYING.libv4l

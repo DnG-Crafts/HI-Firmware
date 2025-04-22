@@ -35,7 +35,8 @@ class NozzleClear:
         self.pumpback_mm        = config.getint('pumpback_mm', default=3)
         self.retract_dist       = config.getint('retract_dist', default=2)
         self.enable_clear       = config.getboolean('enable_clear', default=False)
-        self.zmax               = config.getsection('stepper_z').getfloat('position_max')
+        #self.zmax               = config.getsection('stepper_z').getfloat('position_max')
+        self.zmax               = config.getint('zmax', default=200)
         self.extrude_length     = config.getint('extrude_length', default=50)
         self.extr_enable        = config.getboolean('extr_enable', default=False)
         self.touch_gain         = config.getfloat('touch_gain', default=1, minval=1.0, maxval=5.0)         # 热床上进行喷头擦拭时，两个定位点的触发压力要大些，此处是阈值比例

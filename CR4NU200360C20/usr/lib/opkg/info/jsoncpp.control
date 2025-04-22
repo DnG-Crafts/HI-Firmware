@@ -1,7 +1,7 @@
 Package: jsoncpp
 Version: 1.9.4-1
 Depends: libc, librt, libpthread, libstdcpp6
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/libs/jsoncpp
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/jsoncpp
 SourceName: jsoncpp
 License: MIT
 LicenseFiles: LICENSE

@@ -1,7 +1,7 @@
 Package: aliyun-oss-c-sdk
 Version: fba57a2-3
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/aliyun-oss-c-sdk
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/aliyun-oss-c-sdk
 SourceName: aliyun-oss-c-sdk
 License: Apache-2.0
 LicenseFiles: LICENSE
@@ -9,7 +9,7 @@ Section: creality
 SourceDateEpoch: 1703241424
 Maintainer: Rosen Penev <rosenp@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 67085
+Installed-Size: 67079
 Description:  Alibaba Cloud Object Storage Service (OSS) is a cloud storage service
  provided by Alibaba Cloud, featuring massive capacity, security,
  a low cost, and high reliability. You can upload and download data

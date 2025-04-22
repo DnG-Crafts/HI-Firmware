@@ -1,7 +1,7 @@
 Package: nginx-util
 Version: 1.6-1
 Depends: libc, librt, libpthread, libstdcpp6, libubus20210630, libubox20210516, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/net/nginx-util
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/net/nginx-util
 SourceName: nginx-util
 Section: opt
 SourceDateEpoch: 1710165425

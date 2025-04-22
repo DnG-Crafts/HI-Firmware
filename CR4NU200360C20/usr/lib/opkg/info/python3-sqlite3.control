@@ -1,7 +1,7 @@
 Package: python3-sqlite3
 Version: 3.9.12-1
 Depends: libc, librt, libpthread, python3-light, libsqlite3-0
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-sqlite3
 License: Python/2.0
 LicenseFiles: LICENSE Doc/copyright.rst Doc/license.rst Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi_osx/LICENSE Modules/expat/COPYING

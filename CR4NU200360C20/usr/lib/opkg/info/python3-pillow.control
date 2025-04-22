@@ -1,7 +1,7 @@
 Package: python3-pillow
 Version: 8.2.0-1
 Depends: libc, librt, libpthread, libfreetype, libjpeg, libtiff5, zlib, python3
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/pillow
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/pillow
 SourceName: python3-pillow
 License: HPND
 LicenseFiles: LICENSE

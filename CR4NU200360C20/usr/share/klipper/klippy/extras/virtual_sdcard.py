@@ -61,6 +61,7 @@ class VirtualSD:
         self.must_pause_work = self.cmd_from_sd = False
         self.next_file_position = 0
         self.work_timer = None
+        self.resum_empty_print_flag = False
         # Error handling
         gcode_macro = self.printer.load_object(config, 'gcode_macro')
         self.on_error_gcode = gcode_macro.load_template(
@@ -80,6 +81,9 @@ class VirtualSD:
         self.gcode.register_command(
             "SHOW_GCODE_FLUSH", self.cmd_SHOW_GCODE_FLUSH,
             desc=self.cmd_SHOW_GCODE_FLUSH_help)
+        self.gcode.register_command(
+            "SDCARD_RESUM_EMPTY_PRINT_FLAG", self.cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG,
+            desc=self.cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG_help)
         self.count_G1 = 0 
         self.count_line = 0
         self.do_resume_status = False
@@ -106,6 +110,7 @@ class VirtualSD:
         self.end_print_state = False
         self.last_layer = 0
         self.is_cancel = False
+        self.count_tn = 0
     def handle_shutdown(self):
         if self.work_timer is not None:
             self.must_pause_work = True
@@ -276,6 +281,12 @@ class VirtualSD:
             filename = filename[1:]
         self._load_file(gcmd, filename, check_subdirs=True)
         self.load_gcode_metadata(str(self.current_file.name))
+        box_obj = self.printer.lookup_object('box',None)
+        if box_obj:
+            cfs_enable = box_obj.box_action.box_state.Tn_data["enable"]
+            if cfs_enable:
+                self.count_tn = self.check_Tn(str(self.current_file.name))
+                logging.info(f'count_tn:{self.count_tn}')
         self.record_print_history(str(self.current_file.name))
         self.gcode.run_script_from_command("SET_GCODE_VARIABLE MACRO=IF_CUT_AND_COOLING VARIABLE=resumed VALUE=1")
         self.do_resume()
@@ -295,6 +306,11 @@ class VirtualSD:
             logging.warning('Error in getting flushing parameters')
             return
         self.gcode.respond_info("shwo gcode flush para: %s" % (flush_para))
+
+    cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG_help = "SD file resum empty print"
+    def cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG(self, gcmd):
+        self.resum_empty_print_flag = True
+        logging.info("resum_empty_print_flag")
 
     def load_gcode_metadata(self, file_path=""):
         self.gcode_metadata = self.get_print_file_metadata(file_path)
@@ -811,9 +827,9 @@ class VirtualSD:
                     finally:
                         self.cmd_from_sd = False
             else:
-                self.gcode.run_script("G90")
+                self.gcode.run_script_from_command("G90")
         else:
-            self.gcode.run_script("G90")
+            self.gcode.run_script_from_command("G90")
         return eepromState
 
     def record_power_loss_info(self,power_loss_switch, bl24c16f,eepromState, gcode_move, start_time, end_time, interval_start_time, interval_end_time):
@@ -973,16 +989,25 @@ class VirtualSD:
             print_type = box_obj.box_action.print_type
             logging.info(f'extruder_filament={extruder_filament}')
             logging.info(f'print_type={print_type}')
-            if print_type == "rack" and extruder_filament is False:
+            if not cfs_enable and self.resum_empty_print_flag is False and \
+                extruder_filament is False:
                 if not self.must_pause_work:
                     try:
                         self.cmd_from_sd = True
+                        filament_switch = self.printer.lookup_object('filament_switch_sensor filament_sensor',None)
+                        if filament_switch:
+                            # 上报断料状态给应用端(改变断料检测器状态值)
+                            filament_switch.runout_helper.filament_present= True
+                            self.reactor.pause(self.reactor.monotonic() + 1)
+                            filament_switch.runout_helper.filament_present= False
+                            logging.info(f'sunhui filament_switch_sensor false')
                         logging.warning(f'error occurred before work handler while loop, run script PAUSE')
                         self.gcode.run_script("PAUSE")
                     except Exception as e:
                         logging.error(f'error occurred while pause, error:{e}')
                     finally:
                         self.cmd_from_sd = False
+        self.resum_empty_print_flag = False
         toolhead = self.printer.lookup_object('toolhead')
         start_time = interval_start_time = self.reactor.monotonic()
         self.last_layer = self.layer
@@ -1105,10 +1130,12 @@ class VirtualSD:
         elif self.current_file is not None:
             if self.is_cancel:
                 self.print_stats.note_cancel()
+                self.count_tn = 0
             else:
                 self.print_stats.note_pause()
         else:
             self.print_stats.note_complete()
+            self.count_tn = 0
         return self.reactor.NEVER
 
 def load_config(config):

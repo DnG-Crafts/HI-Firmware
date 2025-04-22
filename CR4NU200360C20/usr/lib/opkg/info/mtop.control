@@ -1,7 +1,7 @@
 Package: mtop
 Version: 1.0-1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/allwinner/common/mtop
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/common/mtop
 SourceName: mtop
 Section: utils
 SourceDateEpoch: 1688356042

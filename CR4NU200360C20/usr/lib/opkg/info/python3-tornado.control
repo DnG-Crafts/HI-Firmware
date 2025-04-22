@@ -1,7 +1,7 @@
 Package: python3-tornado
 Version: 6.1-1
 Depends: libc, librt, libpthread, python3-asyncio, python3-codecs, python3-email, python3-light, python3-logging, python3-multiprocessing, python3-openssl, python3-unittest, python3-urllib
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python-tornado
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-tornado
 SourceName: python3-tornado
 License: Apache-2.0
 LicenseFiles: LICENSE

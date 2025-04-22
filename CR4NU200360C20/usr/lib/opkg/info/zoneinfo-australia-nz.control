@@ -1,7 +1,7 @@
 Package: zoneinfo-australia-nz
 Version: 2021a-1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/zoneinfo
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/zoneinfo
 SourceName: zoneinfo-australia-nz
 License: Public Domain
 Section: utils

@@ -428,7 +428,29 @@ class GCodeMove:
                 self.heater_hot = self.printer.lookup_object('extruder').heater
                 target_hot_temp_old = self.heater_hot.target_temp
                 z_align = self.printer.lookup_object('z_align')
-                diff_z_offset = self.config.getsection('z_align').getfloat('diff_z_offset')
+                #diff_z_offset = self.config.getsection('z_align').getfloat('diff_z_offset')
+                #根据z_tilt的值调整 diff_z_offset
+                try:
+                    z_tilt = self.printer.lookup_object('z_tilt')
+                    adjustments = z_tilt.get_adjustments()
+                    logging.info("power_loss cmd_CX_RESTORE_GCODE_STATE z_tilt.get_adjustments:%s" % str(adjustments))
+                    if adjustments:
+                        negative = False
+                        if abs(adjustments[0]) < abs(adjustments[1]):
+                            if adjustments[1] < 0:
+                                negative = True
+                        else:
+                            if adjustments[0] < 0:
+                                negative = True
+                        adjustments_diff = abs(adjustments[0]-adjustments[1])/2
+                        adjustments_diff = adjustments_diff*(-1.0) if negative else adjustments_diff
+                except Exception as err:
+                    logging.exception("RESTORE z_tilt.get_adjustments err:%s" % err)
+                if adjustments_diff != 0 and abs(adjustments_diff)>4.0:
+                    logging.info("power_loss cmd_CX_RESTORE_GCODE_STATE adjustments_diff:%s > 3.0" % adjustments_diff)
+                    adjustments_diff =  adjustments_diff/10
+                diff_z_offset = adjustments_diff
+                #end
                 za = self.read_real_zmax() + diff_z_offset
                 gcode = self.printer.lookup_object('gcode')
                 gcmd = gcode.create_gcode_command("", "", {})
@@ -437,7 +459,7 @@ class GCodeMove:
                 phoming = self.printer.lookup_object('homing')
                 gcode.run_script_from_command("SET_KINEMATIC_POSITION Z=100")
                 gcode.run_script_from_command("M400")
-                phoming.resume_adjustment()
+                #phoming.resume_adjustment()
                 logging.info("power_loss cmd_CX_RESTORE_GCODE_STATE BED_MESH_PROFILE LOAD='default'")
                 gcode.run_script_from_command('BED_MESH_PROFILE LOAD="default"')
                 toolhead.set_position([x, y, za, self.last_position[3]], homing_axes=(2,))

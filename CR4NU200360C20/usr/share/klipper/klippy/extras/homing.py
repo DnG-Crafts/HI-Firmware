@@ -446,6 +446,19 @@ class PrinterHoming:
         gcode = self.printer.lookup_object('gcode')
         gcmd = gcode.create_gcode_command("", "", {})
         z_align = self.printer.lookup_object('z_align')
+
+        #读取限位状态 避免限位开关异常下怼平台
+        fb1 = self.printer.lookup_object('filament_switch_sensor filament_sensor_4',None)
+        fb2 = self.printer.lookup_object('filament_switch_sensor filament_sensor_5',None)
+        if fb1 is not None:
+            z1_limit_state = fb1.get_status(None).get("filament_detected")
+        if fb2 is not None:
+            z2_limit_state = fb2.get_status(None).get("filament_detected")
+        if z1_limit_state and z2_limit_state:   #判断限位状态
+            err_msg = """{"code":"key357", "msg":"光电开关状态异常或者是热床过于倾斜", "values":[]}"""
+            raise gcode._respond_error(err_msg)
+
+        gcode.respond_info("z_limit_state: Normal")
         z_align.cmd_ZDOWN(gcmd)
         # self.resume_adjustment()
         self.set_max_z_pos()

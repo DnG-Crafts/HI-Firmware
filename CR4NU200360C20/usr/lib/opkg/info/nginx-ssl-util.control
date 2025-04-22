@@ -2,7 +2,7 @@ Package: nginx-ssl-util
 Version: 1.6-1
 Depends: nginx-util (>=1.4-2), libc, librt, libpthread, libstdcpp6, libuci20130104, libubus20210630, libubox20210516, libpthread, libopenssl1.1, nginx-util, libpcre
 Conflicts: nginx-ssl-util-nopcre
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/net/nginx-util
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/net/nginx-util
 SourceName: nginx-ssl-util
 Section: net
 SourceDateEpoch: 1710165425

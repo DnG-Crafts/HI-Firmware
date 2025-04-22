@@ -1,6 +1,6 @@
 Package: libc
 Version: -3
-Depends: libgcc1
+Depends: libgcc
 Source: package/libs/toolchain
 SourceName: libc
 License: GPL-3.0-with-GCC-exception

@@ -1,7 +1,7 @@
 Package: device_manager
 Version: bf602e5
 Depends: libc, librt, libpthread, libcrlog, libjson-c5, libblobmsg-json20210516, libubox20210516, libubus20210630
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/device_manager
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/device_manager
 SourceName: device_manager
 Section: creality
 SourceDateEpoch: 1729602674

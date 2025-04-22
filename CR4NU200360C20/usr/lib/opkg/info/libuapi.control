@@ -1,7 +1,7 @@
 Package: libuapi
 Version: 1.0.0-1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/allwinner/display/libuapi
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/display/libuapi
 SourceName: libuapi
 Section: allwinner
 SourceDateEpoch: 1688356042

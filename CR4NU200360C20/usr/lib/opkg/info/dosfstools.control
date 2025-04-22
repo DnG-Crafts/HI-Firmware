@@ -1,7 +1,7 @@
 Package: dosfstools
 Version: 4.2-0
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/dosfstools
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/dosfstools
 SourceName: dosfstools
 License: GPL-3.0-or-later
 LicenseFiles: COPYING

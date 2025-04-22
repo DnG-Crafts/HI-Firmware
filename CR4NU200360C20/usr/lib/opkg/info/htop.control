@@ -1,7 +1,7 @@
 Package: htop
 Version: 3.1.2-1
 Depends: libc, librt, libpthread, libncurses6
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/admin/htop
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/admin/htop
 SourceName: htop
 License: GPL-2.0-or-later
 LicenseFiles: COPYING

@@ -1,7 +1,7 @@
 Package: python3-light
 Version: 3.9.12-1
 Depends: libc, librt, libpthread, python3-base, libffi, libbz2-1.0, libuuid1
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-light
 License: Python/2.0
 LicenseFiles: LICENSE Doc/copyright.rst Doc/license.rst Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi_osx/LICENSE Modules/expat/COPYING
@@ -10,7 +10,7 @@ SourceDateEpoch: 1722154739
 CPE-ID: cpe:/a:python:python
 Maintainer: Jeffery To <jeffery.to@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 1872976
+Installed-Size: 1872951
 Description:  This package is essentially the python3-base package plus
  a few of the rarely used (and big) libraries stripped out
  into separate packages.

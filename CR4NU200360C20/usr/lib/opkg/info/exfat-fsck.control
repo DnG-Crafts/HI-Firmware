@@ -1,7 +1,7 @@
 Package: exfat-fsck
 Version: 1.0.4-1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/exfatprogs
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/exfatprogs
 SourceName: exfat-fsck
 License: GPL-2.0-only
 LicenseFiles: COPYING

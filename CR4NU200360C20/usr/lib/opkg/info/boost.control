@@ -1,7 +1,7 @@
 Package: boost
 Version: 1.75.0-1
 Depends: libc, librt, libpthread, libstdcpp6, libpthread, librt
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/libs/boost
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/boost
 SourceName: boost
 License: BSL-1.0
 LicenseFiles: LICENSE_1_0.txt

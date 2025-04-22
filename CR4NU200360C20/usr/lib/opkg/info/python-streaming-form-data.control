@@ -1,7 +1,7 @@
 Package: python-streaming-form-data
 Version: 1.8.1-1
 Depends: libc, librt, libpthread, python3
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python-streaming-form-data
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-streaming-form-data
 SourceName: python-streaming-form-data
 License: MIT
 LicenseFiles: LICENSE

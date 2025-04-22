@@ -10,5 +10,5 @@ SourceDateEpoch: 1688356042
 ABIVersion: 1
 Maintainer: Felix Fietkau <nbd@nbd.name>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 12669
+Installed-Size: 12670
 Description:  This package contains a stripped down version of libnl

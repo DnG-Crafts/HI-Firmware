@@ -1,7 +1,7 @@
 Package: aliyun-oss-cpp-sdk
 Version: deae887-3
 Depends: libc, librt, libpthread, libopenssl1.1, libcurl4, libstdcpp6
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/aliyun-oss-cpp-sdk
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/aliyun-oss-cpp-sdk
 SourceName: aliyun-oss-cpp-sdk
 License: Apache-2.0
 LicenseFiles: LICENSE

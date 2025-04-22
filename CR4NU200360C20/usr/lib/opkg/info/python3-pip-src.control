@@ -1,7 +1,7 @@
 Package: python3-pip-src
 Version: 22.0.4-1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-pip-src
 License: MIT
 LicenseFiles: LICENSE.txt

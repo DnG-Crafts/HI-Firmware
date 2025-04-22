@@ -1,7 +1,7 @@
 Package: getevent
 Version: 1
 Depends: libc, librt, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/getevent
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/getevent
 SourceName: getevent
 Section: utils
 SourceDateEpoch: 1688356042

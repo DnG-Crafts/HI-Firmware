@@ -1,7 +1,7 @@
 Package: mcu_update
 Version: ae2ae3bf
 Depends: libc, librt, libpthread, libcrlog
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/mcu_update
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/mcu_update
 SourceName: mcu_update
 Section: creality
 SourceDateEpoch: 1725938263

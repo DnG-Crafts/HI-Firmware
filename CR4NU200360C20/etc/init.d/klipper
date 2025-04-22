@@ -187,6 +187,14 @@ copy_config()
                     sync
                 }
             }
+	    
+	    [ -f $PRINTER_CONFIG_DIR/motor_control.cfg ] || {
+                [ -f ${CONFIG_PATH}/motor_control.cfg ] && {
+                    echo "no motor_control.cfg, so copy"
+                    cp -af ${CONFIG_PATH}/motor_control.cfg $PRINTER_CONFIG_DIR/
+                    sync
+                }
+            }
         else
             # keep printer.cfg
             ls "${CONFIG_PATH}"/*.cfg | grep -v printer.cfg | xargs -I {} cp -af {} $PRINTER_CONFIG_DIR/

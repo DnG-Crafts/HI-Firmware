@@ -1,7 +1,7 @@
 Package: fluidd
 Version: 1.30.0
 Depends: libc, librt, libpthread, moonraker, nginx
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/fluidd
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/fluidd
 SourceName: fluidd
 Section: creality
 SourceDateEpoch: 1718095645

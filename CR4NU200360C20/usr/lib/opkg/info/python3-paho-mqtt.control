@@ -1,7 +1,7 @@
 Package: python3-paho-mqtt
 Version: 1.5.1-1
 Depends: libc, librt, libpthread, python3-light
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/lang/python/python-paho-mqtt
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-paho-mqtt
 SourceName: python3-paho-mqtt
 License: EPL-1.0 Eclipse Distribution License v1.0
 LicenseFiles: epl-v10 edl-v10

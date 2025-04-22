@@ -1,7 +1,7 @@
 Package: tplayerdemo
 Version: 1-1
 Depends: libc, librt, libpthread, libcedarx, libstdcpp6
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/allwinner/multimedia/tina_multimedia_demo/tplayerdemo
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/multimedia/tina_multimedia_demo/tplayerdemo
 SourceName: tplayerdemo
 Section: utils
 SourceDateEpoch: 1688356042

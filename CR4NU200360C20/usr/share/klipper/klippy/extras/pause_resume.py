@@ -42,6 +42,7 @@ class PauseResume:
         webhooks.register_endpoint("getBootLoaderVersion",
                                    self._getBootLoaderVersion)
         self._setBootLoaderStateCmdOid = None
+        self.resume_err = False
     def handle_connect(self):
         self.v_sd = self.printer.lookup_object('virtual_sdcard', None)
         
@@ -134,7 +135,8 @@ class PauseResume:
         self.gcode.run_script("RESUME")
     def get_status(self, eventtime):
         return {
-            'is_paused': self.is_paused
+            'is_paused': self.is_paused,
+            'resume_err': self.resume_err
         }
     def is_sd_active(self):
         return self.v_sd is not None and self.v_sd.is_active()
@@ -173,6 +175,16 @@ class PauseResume:
     def cmd_RESUME(self, gcmd):
         if not self.is_paused:
             gcmd.respond_info("""{"code": "key16", "msg": "Print is not paused, resume aborted"}""")
+            return
+        if self.resume_err:
+            logging.info("resume_err is True")
+            self.resume_err = False
+            # 上报打印状态给应用端(改变print_stats状态)
+            print_stats = self.printer.lookup_object('print_stats')
+            reactor = self.printer.get_reactor()
+            print_stats.state = "printing"
+            reactor.pause(reactor.monotonic() + 3)
+            print_stats.state = "paused"
             return
         velocity = gcmd.get_float('VELOCITY', self.recover_velocity)
         self.gcode.run_script_from_command(

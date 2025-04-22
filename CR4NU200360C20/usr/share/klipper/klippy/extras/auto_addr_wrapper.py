@@ -663,12 +663,18 @@ class AutoAddrWrapper:
             self.reactor.pause(self.reactor.monotonic() + time_interval)
 
     def process_all(self, eventtime):
+        box_obj = self.printer.lookup_object('box',None)
         while True:
             time_interval = 1.0 
             if self.print_stats.state == "printing" or self.print_stats.state == "pause":
                 time_interval = 10
             if self.printer.is_shutdown():
                 return
+            if box_obj and not all(box_obj.box_action.heart_process_enable):
+                # 手动进料过程暂时关闭地址分配
+                logging.info("box heart process not enable")
+                self.reactor.pause(self.reactor.monotonic() + 10)
+                continue
 
             self.dprintf("set slave addr")
             for i in range(len(dev_table_map_table)):

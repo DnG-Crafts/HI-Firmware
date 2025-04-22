@@ -1,7 +1,7 @@
 Package: iperf
 Version: 2.0.13-2
 Depends: libc, librt, libpthread, libstdcpp6, libpthread
-Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/net/iperf
+Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/net/iperf
 SourceName: iperf
 License: BSD-3-Clause
 Section: net
