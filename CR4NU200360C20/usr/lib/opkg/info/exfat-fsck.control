@@ -1,0 +1,13 @@
+Package: exfat-fsck
+Version: 1.0.4-1
+Depends: libc, librt, libpthread
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/exfatprogs
+SourceName: exfat-fsck
+License: GPL-2.0-only
+LicenseFiles: COPYING
+Section: utils
+SourceDateEpoch: 1688356042
+Maintainer: Daniel Golle <daniel@makrotopia.org>
+Architecture: arm_cortex-a7_neon
+Installed-Size: 13559
+Description:  Utility for checking/repairing an exFAT File System

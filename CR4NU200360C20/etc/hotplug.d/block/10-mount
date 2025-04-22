@@ -1,0 +1,211 @@
+#!/bin/sh
+## Author: Gongshaojie
+## Function: Hotplug U disk Deal
+########################################
+
+mount_exfat() {
+    local DEVICE=$1
+    case "${DEVICE}" in
+        sd*)
+            mkdir -p /mnt/exUDISK
+            /bin/mount -t exfat -o utf8 /dev/${DEVICE} /mnt/exUDISK
+            if [ $? -eq 0 ]; then
+#                echo "start mount  /dev/${DEVICE} exfat " > /dev/kmsg
+                [ -x /usr/bin/ubus_call ] && /usr/bin/ubus_call udisk set_state 1 "/mnt/exUDISK"
+                return 0
+            else
+                echo "Mount ${DEVICE} exfat Failed!!" > /dev/kmsg
+            fi
+            ;;
+        mmcblk*)
+            mkdir -p /mnt/SDCARD
+            /bin/mount -t exfat -o utf8 /dev/${DEVICE} /mnt/SDCARD
+            return $?
+            ;;
+        *)
+            ;;
+    esac
+
+    return 1
+}
+
+mount_vfat() {
+    local DEVICE=$1
+    case "${DEVICE}" in
+        sd*)
+#           echo "do mount vfat ${DEVICE}" > /dev/kmsg
+            mkdir -p /mnt/exUDISK
+            /bin/mount -t vfat -o rw,async,utf8 /dev/${DEVICE} /mnt/exUDISK/
+            if [ $? -eq 0 ]; then
+#                echo "start mount  /dev/${DEVICE} vfat " > /dev/kmsg
+                [ -x /usr/bin/ubus_call ] && /usr/bin/ubus_call udisk set_state 1 "/mnt/exUDISK"
+                return 0
+            else
+                echo "Mount ${DEVICE} vfat Failed!!" > /dev/kmsg
+            fi
+            ;;
+        mmcblk*)
+            mkdir -p /mnt/SDCARD
+            /bin/mount -t vfat -o rw,async,utf8 /dev/${DEVICE} /mnt/SDCARD
+            return $?
+            ;;
+        *)
+            ;;
+    esac
+
+    return 1
+}
+
+mount_ntfs() 
+{
+    local DEVICE=$1
+    case "${DEVICE}" in
+        sd*)
+            mkdir -p /mnt/exUDISK
+            /usr/bin/ntfs-3g /dev/${DEVICE} /mnt/exUDISK -o rw,noatime,nodiratime,nosuid,nodev
+            if [ $? -eq 0 ]; then
+#               echo "start mount  /dev/${DEVICE} ntfs " > /dev/kmsg
+                [ -x /usr/bin/ubus_call ] && /usr/bin/ubus_call udisk set_state 1 "/mnt/exUDISK"
+                return 0
+            else
+                echo "Mount ${DEVICE} ntfs Failed!!" > /dev/kmsg
+            fi
+            ;;
+        mmcblk*)
+            mkdir -p /mnt/SDCARD
+            /usr/bin/ntfs-3g /dev/${DEVICE} /mnt/SDCARD -o rw,noatime,nodiratime,nosuid,nodev
+            return $?
+            ;;
+        *)
+            ;;
+    esac
+
+    return 1
+
+}
+
+fs_mount() {
+    local DEVICE=$1
+    local FSTYPE=$(blkid -o value -s TYPE /dev/${DEVICE})
+
+    case $FSTYPE in
+        ext2|ext3|ext4)
+            mkdir -p /mnt/exUDISK
+            /bin/mount -t ext4 -o rw,async /dev/${DEVICE} /mnt/exUDISK/
+            if [ $? -eq 0 ]; then
+                [ -x /usr/bin/ubus_call ] && /usr/bin/ubus_call udisk set_state 1 "/mnt/exUDISK"
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        vfat)
+             mount_vfat ${DEVICE}
+            ;;
+        exfat)
+             mount_exfat ${DEVICE}
+            ;;
+        ntfs)
+             mount_ntfs ${DEVICE}
+            ;;
+        *)
+            echo "Unsupported file system type: $FSTYPE"
+            return 1
+            ;;
+    esac
+ 
+}
+
+
+fs_check() {
+    local DEVICE=$1
+    local FSTYPE=$(blkid -o value -s TYPE /dev/${DEVICE})
+
+    case $FSTYPE in
+        ext2|ext3|ext4)
+            if [ -x "/usr/sbin/fsck.ext4" ];then
+                 /usr/sbin/fsck.ext4 -p /dev/${DEVICE} 
+            fi
+            ;;
+         vfat)
+            if [ -x "/usr/sbin/fsck.fat" ];then
+                /usr/sbin/fsck.fat -aw /dev/${DEVICE} 
+            fi
+            ;;
+         ntfs)
+            if [ -x "/usr/bin/ntfs-3g" -a -x "/usr/bin/ntfs-3g.probe" ]; then
+                /usr/bin/ntfs-3g.probe --readwrite "/dev/${DEVCIE}" &> /dev/null
+                case $? in
+                      0)
+                         echo "NTFS is OK, Lets Mount.."
+                      ;;
+                      12)
+                         echo "${DEVICE} doesn't have a NTFS filesystem"
+                      ;;
+                      16)
+                         echo "The volume is already exclusively opened and in use by a kernel driver or software."
+                      ;;
+                      *)
+                          echo "Something wrong on file system of ${DEVICE}. Fixing. Please wait for a few seconds" > /dev/kmsg
+                          if [ -x "/usr/bin/ntfsfix" ]; then
+                               /usr/bin/ntfsfix /dev/${DEVICE}
+                          fi
+                      ;;
+                esac
+            fi
+            ;;
+         exfat)
+            if [ -x "/usr/sbin/fsck.exfat" ]; then
+                 /usr/sbin/fsck.exfat -p /dev/${DEVICE} 
+            fi
+            ;;
+        *)
+            echo "Unsupported Fix file system type: $FSTYPE"
+            ;;
+    esac
+}
+
+
+if [ -n "${DEVNAME}" ] && [ -n "${ACTION}" ]; then
+
+   case "${ACTION}" in 
+     add)
+          case "${DEVNAME}" in
+           sd*)
+               if [[ $DEVNAME =~ [0-9] ]]; then
+                   /bin/mount | grep ${DEVNAME%[0-9]} > /dev/null
+                   if [ $? -ne 0 ]; then
+                      fs_check ${DEVNAME}
+                      fs_mount ${DEVNAME}
+                   fi
+               fi
+              ;;
+              *)
+#                  /bin/mount | grep -Fw "${DEVNAME}"
+#                 if [ $? -ne 0 ]; then
+#                      fs_check ${DEVNAME}
+#                      fs_mount ${DEVNAME}
+#                  fi
+                echo "Unsupported $DEVNAME"
+               ;;
+               esac
+               ;;
+          remove)
+                MOUNT=`/bin/mount | grep "${DEVNAME}" | awk '{ print $3 }'`
+                if [ "$MOUNT" == "" ]; then
+                     exit
+                fi
+
+                for i in $MOUNT
+                do
+                    echo "Start Remote $i" > /dev/kmsg
+                    /bin/umount -l $i > /dev/null  && [ -x /usr/bin/ubus_call ] && /usr/bin/ubus_call udisk set_state 0 "/mnt/exUDISK"
+                    break
+                done
+                ;;
+          *)
+                echo "Unsupported $ACTION"
+                ;;
+    esac
+fi
+

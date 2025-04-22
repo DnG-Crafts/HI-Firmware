@@ -1,0 +1,10 @@
+Package: libcrlog
+Version: 662a4714
+Depends: libc, librt, libpthread, libjson-c5
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/libcrlog
+SourceName: libcrlog
+Section: creality
+SourceDateEpoch: 1704280096
+Architecture: arm_cortex-a7_neon
+Installed-Size: 6073
+Description:  with libCrlog support

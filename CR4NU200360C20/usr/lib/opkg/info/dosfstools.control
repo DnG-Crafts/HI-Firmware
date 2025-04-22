@@ -1,0 +1,14 @@
+Package: dosfstools
+Version: 4.2-0
+Depends: libc, librt, libpthread
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/utils/dosfstools
+SourceName: dosfstools
+License: GPL-3.0-or-later
+LicenseFiles: COPYING
+Section: utils
+SourceDateEpoch: 1732089274
+CPE-ID: cpe:/a:dosfstools_project:dosfstools
+Maintainer: Álvaro Fernández Rojas <noltari@gmail.com>
+Architecture: arm_cortex-a7_neon
+Installed-Size: 77038
+Description:  The dosfstools package includes the mkfs.fat and fsck.fat utilities, which respectively make and check MS-DOS FAT filesystems.

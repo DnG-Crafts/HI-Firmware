@@ -1,0 +1,10 @@
+Package: fbviewer
+Version: 1
+Depends: libc, librt, libpthread, libpng, libjpeg
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/fbviewer
+SourceName: fbviewer
+Section: creality
+SourceDateEpoch: 1703483973
+Architecture: arm_cortex-a7_neon
+Installed-Size: 10316
+Description:  Frame buffer viewer image

@@ -1,0 +1,15 @@
+Package: libnghttp2-14
+Version: 1.43.0-1
+Depends: libc, librt, libpthread
+Provides: libnghttp2
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/libs/nghttp2
+SourceName: libnghttp2
+License: MIT
+LicenseFiles: COPYING
+Section: libs
+SourceDateEpoch: 1688356042
+ABIVersion: -14
+Maintainer: Hans Dedecker <dedeckeh@gmail.com>
+Architecture: arm_cortex-a7_neon
+Installed-Size: 59573
+Description:  C library implementing the framing layer of the HTTP/2 protocol. It can be used to build a HTTP/2-capable HTTP client or server

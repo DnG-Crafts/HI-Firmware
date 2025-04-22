@@ -1,0 +1,10 @@
+Package: boot-play
+Version: 1-1
+Depends: libc, librt, libpthread, libpng, libubox20210516, tinymp3, libuapi, libcedarx
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/allwinner/display/boot-play
+SourceName: boot-play
+Section: utils
+SourceDateEpoch: 1721465148
+Architecture: arm_cortex-a7_neon
+Installed-Size: 131209
+Description:  boot play

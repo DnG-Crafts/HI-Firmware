@@ -1,0 +1,10 @@
+Package: webrtc
+Version: f0954b06
+Depends: libc, librt, libpthread, libcrlog, cJSON, libnice, libwebsockets, libsrtp
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/webrtc
+SourceName: webrtc
+Section: creality
+SourceDateEpoch: 1716609699
+Architecture: arm_cortex-a7_neon
+Installed-Size: 141
+Description:  webrtc

@@ -1,0 +1,35 @@
+#!/bin/sh /etc/rc.common
+
+START=16
+USE_PROCD=1
+DEPEND=device_manager
+
+refresh_udisk_status() {
+    grep -sq /mnt/exUDISK /proc/mounts && {
+        [ -x /usr/bin/ubus_call ] && ubus_call udisk set_state 1 "/mnt/exUDISK"
+    }
+}
+
+FLAG_FILE=/tmp/.laser_updating
+LINK_FILE=/dev/serial/by-id/creality-laser
+
+refresh_laser_status() {
+    [ -e $FLAG_FILE ] || {
+        [ -e $LINK_FILE ] && ubus call laser set_state '{"laser_plugged": 1}'
+    }
+}
+
+TIMELAPSE_FILE=/var/run/main_timelapse.pid
+
+refresh_cam_status() {
+    [ -e $TIMELAPSE_FILE ] && {
+        [ $(ps | grep `cat $TIMELAPSE_FILE` | grep -v grep | wc -l) -eq 1 ] && \
+            ubus call camera set_state '{"type": 0,  "online": 1}'
+    }
+}
+
+start_service() {
+    refresh_udisk_status
+    refresh_laser_status
+    refresh_cam_status
+}

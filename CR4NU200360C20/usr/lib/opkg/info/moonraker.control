@@ -1,0 +1,10 @@
+Package: moonraker
+Version: dde9bcc
+Depends: libc, librt, libpthread, python3
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/moonraker
+SourceName: moonraker
+Section: creality
+SourceDateEpoch: 1723726560
+Architecture: arm_cortex-a7_neon
+Installed-Size: 7652767
+Description:  with moonraker support

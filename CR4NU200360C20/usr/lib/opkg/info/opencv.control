@@ -1,0 +1,13 @@
+Package: opencv
+Version: 4.1.2-1
+Depends: libc, librt, libpthread, libpthread, librt, libstdcpp6, zlib, libjpeg, libfreetype, libffmpeg
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/creality/opencv
+SourceName: opencv
+License: Apache-2.0
+LicenseFiles: LICENSE
+Section: libs
+SourceDateEpoch: 1715336319
+Maintainer: WRTnode Team <pub@wrtnode.com>
+Architecture: arm_cortex-a7_neon
+Installed-Size: 6517985
+Description:  OpenCV

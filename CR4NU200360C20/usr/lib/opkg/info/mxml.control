@@ -1,0 +1,13 @@
+Package: mxml
+Version: 2.9-1
+Depends: libc, librt, libpthread, zlib
+Source: /data/114041/release/version/kl_C4408_V2/openwrt/package/feeds/libs/mxml
+SourceName: mxml
+License: GPL-2.0
+LicenseFiles: COPYING
+Section: libs
+SourceDateEpoch: 1703139962
+Maintainer: Espen Jürgensen <espenjurgensen+openwrt@gmail.com>
+Architecture: arm_cortex-a7_neon
+Installed-Size: 16499
+Description:  A small xml library.

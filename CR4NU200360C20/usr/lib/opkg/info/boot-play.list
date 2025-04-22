@@ -1,0 +1,7 @@
+/usr/res/boot-play/desc.txt
+/usr/res/boot-play/part1/pic_001.jpg
+/usr/res/boot-play/boot.mp3
+/sbin/boot-play
+/sbin/music-play
+/etc/init.d/play
+/usr/res/boot-play/part0/pic_000.jpg
