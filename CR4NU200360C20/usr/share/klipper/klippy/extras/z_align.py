@@ -100,6 +100,7 @@ class Zalign:
             z2_limit_state = fb2.get_status(None).get("filament_detected")
         if z1_limit_state and z2_limit_state:   #判断限位状态
             err_msg = """{"code":"key357", "msg":"光电开关状态异常或者是热床过于倾斜", "values":[]}"""
+            raise gcode._respond_error(err_msg)
 
         query_z_align = self.mcu.lookup_query_command("query_z_align_up oid=%c enable=%c quickSpeed=%u slowSpeed=%u risingDist=%u filterCnt=%c",
                                                 "z_align_status oid=%c flag=%i deltaError1=%i", oid=self.oidz1)    

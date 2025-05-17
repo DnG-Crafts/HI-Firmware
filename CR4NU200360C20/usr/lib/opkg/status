@@ -455,7 +455,7 @@ Installed-Time: 1741167646
 Auto-Installed: yes
 
 Package: base-files
-Version: 4-r0-19767fe40
+Version: 4-r0-bbb3c1834
 Depends: libc, librt, libpthread, netifd, procd, jsonfilter, fstools, fwtool
 Status: install user installed
 Architecture: arm_cortex-a7_neon
@@ -1710,7 +1710,7 @@ Installed-Time: 1741167646
 Auto-Installed: yes
 
 Package: klipper
-Version: 95498970
+Version: dddb7cf
 Depends: libc, librt, libpthread, python3, python3-setuptools, calc_psd
 Status: install user installed
 Architecture: arm_cortex-a7_neon
@@ -1796,7 +1796,7 @@ Architecture: arm_cortex-a7_neon
 Installed-Time: 1741167646
 
 Package: lvgl_klipper
-Version: 3d4407f9
+Version: b3ce7533
 Depends: libc, librt, libpthread, libcrlog, aliyun-oss-cpp-sdk, libapr, libaprutil, libatomic1, libffmpeg-full, libblobmsg-json20210516, libopenssl1.1, libcurl4, libfreetype, libhv, libinotifytools, libjpeg, libjson-c5, jsoncpp, mxml, libpng, paho-mqtt-c, libprotobuf-c, libqrencode, libstdcpp6, libubox20210516, libubus20210630, libuuid1, wifimanager-v2.0-lib, libcxcloud
 Status: install user installed
 Architecture: arm_cortex-a7_neon

@@ -4,7 +4,7 @@ Depends: libc, librt, libpthread
 Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/scripts
 SourceName: scripts
 Section: creality
-SourceDateEpoch: 1741343277
+SourceDateEpoch: 1744351741
 Architecture: arm_cortex-a7_neon
-Installed-Size: 2501407
+Installed-Size: 3154940
 Description:  with scripts support

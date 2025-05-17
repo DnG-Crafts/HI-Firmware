@@ -82,6 +82,9 @@ class VirtualSD:
             "SHOW_GCODE_FLUSH", self.cmd_SHOW_GCODE_FLUSH,
             desc=self.cmd_SHOW_GCODE_FLUSH_help)
         self.gcode.register_command(
+            "M5001", self.cmd_CAPTURE_DELAY_IMAGE,
+            desc=self.cmd_CAPTURE_DELAY_IMAGE_help)
+        self.gcode.register_command(
             "SDCARD_RESUM_EMPTY_PRINT_FLAG", self.cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG,
             desc=self.cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG_help)
         self.count_G1 = 0 
@@ -308,6 +311,27 @@ class VirtualSD:
             logging.warning('Error in getting flushing parameters')
             return
         self.gcode.respond_info("shwo gcode flush para: %s" % (flush_para))
+
+    cmd_CAPTURE_DELAY_IMAGE_help = "Capture images during printing to generate a time-lapse video."
+    def cmd_CAPTURE_DELAY_IMAGE(self, gcmd):
+        delay_photography_switch, location, frame, interval, power_loss_switch = self.get_delay_photography_info()
+        cmd_param = gcmd.get_raw_command_parameters()
+        if delay_photography_switch and os.path.exists("/tmp/camera_main"):
+            if all(gcode not in cmd_param for gcode in ["M400", "G1", "G2"]) and (frame := gcmd.get_int("P", default=None, minval=10, maxval=20)) and 10 <= frame <= 20:
+                try:
+                    import subprocess
+                    capture_shell ="capture 0"
+                    logging.info(capture_shell)
+                    capture_ret = subprocess.check_output(capture_shell, shell=True).decode("utf-8")
+                    logging.info("%s return:#%s#" % (capture_shell, str(capture_ret)))
+                    self.gcode.respond_info("capture 0")
+                except Exception as err:
+                    logging.error(err)
+            else:
+                logging.info(f'cmd_param:{cmd_param}')
+                if cmd_param:
+                    self.gcode.run_script_from_command(cmd_param)
+                    self.gcode.run_script_from_command("M400")
 
     cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG_help = "SD file resum empty print"
     def cmd_SDCARD_RESUM_EMPTY_PRINT_FLAG(self, gcmd):
@@ -643,7 +667,7 @@ class VirtualSD:
         result = {}
         python_env = "/usr/share/klippy-env/bin/python3"
         # -f gcode filename  -p gcode file dir
-        cmd = "%s /usr/share/klipper/klippy/extras/metadata.py -f '%s' -p %s" % (python_env, filename, filepath)
+        cmd = "%s /usr/share/klipper/klippy/extras/metadata.py -f '%s' -p '%s'" % (python_env, filename, filepath)
         try:
             result = json.loads(check_output(cmd, shell=True).decode("utf-8"))
         except Exception as err:
@@ -657,7 +681,7 @@ class VirtualSD:
         if metadata_info:
             result = metadata_info
         else:
-            result = self.get_print_file_metadata(filename, get_layer_count=True)
+            result = self.get_print_file_metadata(filename)
         if not result:
             return layer_count
         try:
@@ -1095,7 +1119,7 @@ class VirtualSD:
                 if self.slow_print == True and self.layer > 0 and self.slow_count < self.layer:
                     self.resume_print_speed()
                 # 在读到END_PRINT的时候 判断是否需要拍照
-                self.check_end_print(line, power_loss_switch, delay_photography_switch, frame)
+                #self.check_end_print(line, power_loss_switch, delay_photography_switch, frame)
                 self.gcode.run_script(line)
                 if power_loss_switch:
                     self.count_line += 1

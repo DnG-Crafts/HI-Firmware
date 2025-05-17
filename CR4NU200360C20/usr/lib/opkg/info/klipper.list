@@ -17,7 +17,6 @@
 /usr/share/klipper/klippy/chelper/kin_winch.c
 /usr/share/klipper/test/klippy/manual_stepper.test
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/distlib/compat.pyc
-/usr/share/klipper/fw/cfs/cfs0_050_G30-cfs0_000_108.bin
 /usr/share/klipper/test/klippy/input_shaper.cfg
 /usr/share/klipper/klippy/extras/serial_485.pyc
 /usr/share/klipper/scripts/install-beaglebone.sh
@@ -271,7 +270,6 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/chardet/constants.pyc
 /usr/share/klippy-env/lib/python3.9/keyword.pyc
 /usr/share/klipper/klippy/extras/metadata.pyc
-/usr/share/klipper/fw/cfs/cfs0_050_G32-cfs0_000_109.bin
 /usr/share/klipper/klippy/extras/homing.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/chardet/cp949prober.py
 /usr/share/klipper/klippy/chelper/list.h
@@ -761,6 +759,7 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/lib2to3_ex.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/html5lib/filters/alphabeticalattributes.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/urllib3/poolmanager.pyc
+/usr/share/klipper/fw/cfs/cfs0_050_G30-cfs0_000_113.bin
 /usr/share/klippy-env/lib/python3.9/site-packages/aenum-3.1.0.dist-info/INSTALLER
 /usr/share/klipper/klippy/stepper.pyc
 /usr/share/klipper/test/configs/stm32f407.config
@@ -851,6 +850,7 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/commands/completion.py
 /usr/share/klipper/klippy/gcode.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/html5lib/_utils.py
+/usr/share/klipper/fw/cfs/cfs0_050_G32-cfs0_000_113.bin
 /usr/share/klipper/klippy/extras/serial_485.py
 /usr/share/klipper/docs/prints/ringing_tower.stl
 /usr/share/klipper/klippy/chelper/kin_corexy.c
