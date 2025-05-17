@@ -322,6 +322,7 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/api.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/chardet/escprober.py
 /usr/share/klipper/README.md
+/usr/share/klipper/fw/F018/motor/mot0_023_C30-mot2_002_041.bin
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/operations/__init__.pyc
 /usr/share/klipper/klippy/kinematics/deltesian.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/utils/encoding.py
@@ -445,7 +446,6 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/html5lib/filters/whitespace.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/urllib3/util/url.pyc
 /usr/share/klippy-env/lib/python3.9/warnings.pyc
-/usr/share/klipper/fw/F018/motor/mot0_023_C30-mot2_002_033.bin
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/colorama/ansi.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/chardet/euckrfreq.py
 /usr/share/klipper/gcodes/F018/Nozzle cover_PLA_3h28m.gcode
@@ -569,7 +569,6 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/html5lib/filters/base.pyc
 /usr/share/klippy-env/lib/python3.9/importlib
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/webencodings/__init__.py
-/usr/share/klipper/fw/F018/mcu0_110_G32-mcu0_019_000.bin
 /usr/share/klipper/klippy/extras/smart_effector.pyc
 /usr/share/klipper/klippy/pins.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/lib2to3_ex.py
@@ -605,6 +604,7 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/distlib/_backport/misc.pyc
 /usr/share/klipper/klippy/extras/statistics.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/urllib3/connectionpool.py
+/usr/share/klipper/fw/F018/mcu0_110_G32-mcu0_020_000.bin
 /usr/share/klipper/.gitignore
 /usr/share/klipper/klippy/extras/multi_pin.py
 /usr/share/klipper/test/klippy/input_shaper.test
@@ -699,6 +699,7 @@
 /usr/share/klippy-env/lib/python3.9/site-packages/wheel/test/test_ranking.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/html5lib/treebuilders/dom.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/command/install_scripts.pyc
+/usr/share/klipper/fw/F018/motor/mot2_033_C30-mot2_002_041.bin
 /usr/share/klipper/klippy/extras/custom_macro.py
 /usr/share/klipper/klippy/console.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/urllib3/packages/ssl_match_hostname/__init__.py
@@ -824,7 +825,6 @@
 /usr/share/klipper/docs/img/lookahead-slow.svg.png
 /usr/share/klipper/scripts/klippy-requirements.txt
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/command/setopt.pyc
-/usr/share/klipper/fw/F018/motor/mot2_033_C30-mot2_002_033.bin
 /usr/share/klipper/klippy/extras/verify_heater.py
 /usr/share/klipper/docs/img/favicon.ico
 /usr/share/klipper/klippy/chelper/shaper_calibrate_c/shaper_calibrate.h
@@ -1144,6 +1144,7 @@
 /usr/share/klipper/klippy/extras/tuning_tower.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/packages/chardet/sjisprober.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/commands/show.pyc
+/usr/share/klipper/fw/F018/motor/mot2_023_C30-mot2_002_041.bin
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/commands/hash.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/command/egg_info.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/sandbox.py
@@ -1311,7 +1312,6 @@
 /usr/share/klipper/test/configs/same70q20b.config
 /usr/share/klippy-env/lib/python3.9/site-packages/wrapt-1.12.1.dist-info/INSTALLER
 /usr/share/klippy-env/lib/python3.9/site-packages/setuptools/command/setopt.py
-/usr/share/klipper/fw/F018/motor/mot2_023_C30-mot2_002_033.bin
 /usr/share/klipper/klippy/extras/io_remap.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/webencodings/x_user_defined.pyc
 /usr/share/klipper/fw/F010/mcu0_110_G32-mcu0_019_000.bin

@@ -111,6 +111,7 @@ class VirtualSD:
         self.last_layer = 0
         self.is_cancel = False
         self.count_tn = 0
+        self.layer_key = ""
     def handle_shutdown(self):
         if self.work_timer is not None:
             self.must_pause_work = True
@@ -264,6 +265,7 @@ class VirtualSD:
                 self.gcode.respond_info("The motor parameters are initializing, Please try again later...")
                 return
         self.end_print_state = False
+        self.layer_key = ""
         self.print_id = ""
         if self.work_timer is not None:
             raise gcmd.error("SD busy")
@@ -913,10 +915,19 @@ class VirtualSD:
         if not power_loss_switch:
             return
         if line.startswith(";"):
+            if self.layer_key:
+                if line.startswith(self.layer_key):
+                    self.layer += 1
+                    self.record_layer(self.layer)
+                    self.reactor.pause(self.reactor.monotonic() + 0.001)
+                return
             for layer_key in LAYER_KEYS:
                 if line.startswith(layer_key):
                     self.layer += 1
                     self.record_layer(self.layer)
+                    self.reactor.pause(self.reactor.monotonic() + 0.001)
+                    if not self.layer_key:
+                        self.layer_key = layer_key
                     break
 
     def first_floor_pause(self, line, toolhead):

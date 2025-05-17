@@ -25,9 +25,12 @@ class RunoutHelper:
                 config, 'insert_gcode')
         self.pause_delay = config.getfloat('pause_delay', .5, above=.0)
         self.event_delay = config.getfloat('event_delay', 3., above=0.)
+        self.debounce_delay = config.getfloat('debounce_delay', 1., above=0.)
         # Internal state
         self.min_event_systime = self.reactor.NEVER
         self.filament_present = False
+        self.filament_present_smooth = False
+        self.inside_check_smooth = False
         self.sensor_enabled = True
         # Register commands and event handlers
         self.printer.register_event_handler("klippy:ready", self._handle_ready)
@@ -60,41 +63,67 @@ class RunoutHelper:
             logging.exception("Script running error")
         self.min_event_systime = self.reactor.monotonic() + self.event_delay
     def note_filament_present(self, is_filament_present):
-        logging.info("note_filament_present")
-        if is_filament_present == self.filament_present:
-            return
-        self.filament_present = is_filament_present
-        eventtime = self.reactor.monotonic()
-        if eventtime < self.min_event_systime or not self.sensor_enabled:
-            # do not process during the initialization time, duplicates,
-            # during the event delay time, while an event is running, or
-            # when the sensor is disabled
-            logging.info(
+        def do_filament_work():
+            self.filament_present = self.filament_present_smooth
+            eventtime = self.reactor.monotonic()
+            if eventtime < self.min_event_systime or not self.sensor_enabled:
+                # do not process during the initialization time, duplicates,
+                # during the event delay time, while an event is running, or
+                # when the sensor is disabled
+                logging.info(
                     "eventtime %.2f, self.min_event_systime %.2f, self.sensor_enabled %d" %
                     (eventtime, self.min_event_systime, self.sensor_enabled))
-            return
-        # Determine "printing" status
-        idle_timeout = self.printer.lookup_object("idle_timeout")
-        print_stats = self.printer.lookup_object('print_stats')
-        is_printing = print_stats.state == "printing"
-        # is_printing = idle_timeout.get_status(eventtime)["state"] == "Printing"
-        # Perform filament action associated with status change (if any)
-        logging.info("note_filament_present Stage2")
-        if is_filament_present:
-            if not is_printing and self.insert_gcode is not None:
-                # insert detected
+                return
+            # Determine "printing" status
+            idle_timeout = self.printer.lookup_object("idle_timeout")
+            print_stats = self.printer.lookup_object('print_stats')
+            is_printing = print_stats.state == "printing"
+            # is_printing = idle_timeout.get_status(eventtime)["state"] == "Printing"
+            # Perform filament action associated with status change (if any)
+            logging.info("note_filament_present Stage2")
+            if is_filament_present:
+                if not is_printing and self.insert_gcode is not None:
+                    # insert detected
+                    self.min_event_systime = self.reactor.NEVER
+                    logging.info(
+                        "Filament Sensor %s: insert event detected, Time %.2f" %
+                        (self.name, eventtime))
+                    self.reactor.register_callback(self._insert_event_handler)
+            elif is_printing and self.runout_gcode is not None:
+                # runout detected
                 self.min_event_systime = self.reactor.NEVER
                 logging.info(
-                    "Filament Sensor %s: insert event detected, Time %.2f" %
+                    "Filament Sensor %s: runout event detected, Time %.2f" %
                     (self.name, eventtime))
-                self.reactor.register_callback(self._insert_event_handler)
-        elif is_printing and self.runout_gcode is not None:
-            # runout detected
-            self.min_event_systime = self.reactor.NEVER
-            logging.info(
-                "Filament Sensor %s: runout event detected, Time %.2f" %
-                (self.name, eventtime))
-            self.reactor.register_callback(self._runout_event_handler)
+                self.reactor.register_callback(self._runout_event_handler)
+
+        def check_smooth(et=None):
+            logging.info(f'XXXX1Filament Sensor {self.name},{is_filament_present}: filament not detected')
+            self.reactor.pause(self.reactor.monotonic()+self.debounce_delay)
+            if self.filament_present_smooth == 0:
+                # logging.info(f'XXXX2Filament Sensor {self.name},{is_filament_present}: filament not detected')
+                # self.inside_check_smooth = False
+                # return
+                logging.info(f'XXXX2Filament Sensor {self.name},{is_filament_present}: filament not detected')
+                do_filament_work()
+            self.inside_check_smooth = False
+
+        logging.info("note_filament_present")
+        if is_filament_present == self.filament_present_smooth:
+            logging.info(f'XXXX3Filament Sensor {self.name},{is_filament_present}: filament not detected')
+            return
+
+        self.filament_present_smooth = is_filament_present
+        if self.inside_check_smooth:
+            logging.info(f'XXXX4 inside_check_smooth Filament Sensor {self.name},{is_filament_present}: filament not detected')
+            return
+
+        if self.name == "filament_sensor" and is_filament_present == 0:
+            self.inside_check_smooth = True
+            self.reactor.register_callback(check_smooth)
+            return
+        do_filament_work()
+
     def get_status(self, eventtime):
         return {
             "filament_detected": bool(self.filament_present),

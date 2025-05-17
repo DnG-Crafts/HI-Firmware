@@ -12,6 +12,7 @@ class PauseResume:
         self.gcode = self.printer.lookup_object('gcode')
         self.recover_velocity = config.getfloat('recover_velocity', 50.)
         self.v_sd = None
+        self.run_dp = False
         self.is_paused = False
         self.sd_paused = False
         self.pause_command_sent = False
@@ -145,6 +146,11 @@ class PauseResume:
         # the difference between pause_command_sent and is_paused, the
         # module isn't officially paused until the PAUSE gcode executes.
         if not self.pause_command_sent:
+            if self.run_dp:
+                self.sd_paused = True
+                self.run_dp = False  # 无需再次执行do_pause()，key847已经执行
+                self.gcode.respond_info("action:run_dp xxxxxxxxxxxxxxxx")
+                return
             if self.is_sd_active():
                 # Printing from virtual sd, run pause command
                 self.sd_paused = True

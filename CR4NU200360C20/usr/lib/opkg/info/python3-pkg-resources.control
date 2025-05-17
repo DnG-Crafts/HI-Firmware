@@ -10,5 +10,5 @@ SourceDateEpoch: 1722154739
 CPE-ID: cpe:/a:python:python
 Maintainer: Jeffery To <jeffery.to@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 146502
+Installed-Size: 146504
 Description:  Python 3.9 pkg_resources module (part of setuptools)

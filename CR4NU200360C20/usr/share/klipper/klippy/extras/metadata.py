@@ -1059,7 +1059,7 @@ class Creality(BaseSlicer):
             nozzle_volume = float(nozzle_volume_match.group(1))
 
         if flush_volumes_matrix_match:
-            flush_volumes_matrix = [int(x) for x in flush_volumes_matrix_match.group(1).strip().split(',')]
+            flush_volumes_matrix = [int(float(x)) for x in flush_volumes_matrix_match.group(1).strip().split(',')]
 
         if flush_volumes_matrix and len(flush_volumes_matrix) > 1 and  not any(flush_volumes_matrix):
             flush_volumes_matrix = None

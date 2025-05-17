@@ -84,6 +84,7 @@
 /etc/iproute2/rt_tables
 /etc/config/network
 /lib/functions/leds.sh
+/usr/bin/kongda_detect.tar.gz
 /rom/note
 /etc/inittab
 /etc/openwrt_release

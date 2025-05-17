@@ -4,7 +4,7 @@ Depends: libc, librt, libpthread, libcrlog, libopenssl1.1, libshm, webrtc, libua
 Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/cam_app
 SourceName: allwinner_uvc
 Section: creality
-SourceDateEpoch: 1729602674
+SourceDateEpoch: 1742970082
 Architecture: arm_cortex-a7_neon
-Installed-Size: 325684
+Installed-Size: 325695
 Description:  allwinner_uvc
