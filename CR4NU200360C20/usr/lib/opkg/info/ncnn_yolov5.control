@@ -1,12 +1,12 @@
 Package: ncnn_yolov5
-Version: ff89b216
+Version: 6547da5d
 Depends: libc, librt, libpthread, libpthread, librt, libstdcpp6, zlib, libjpeg, libfreetype, opencv, libjson-c5, libcurl4
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/ncnn_yolov5
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/ncnn_yolov5
 SourceName: ncnn_yolov5
 License: Apache-2.0
 LicenseFiles: LICENSE
 Section: creality
 SourceDateEpoch: 1741854144
 Architecture: arm_cortex-a7_neon
-Installed-Size: 12174008
+Installed-Size: 12179992
 Description:  ncnn_yolov5

@@ -1,7 +1,7 @@
 Package: fbviewer
 Version: 1
 Depends: libc, librt, libpthread, libpng, libjpeg
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/fbviewer
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/fbviewer
 SourceName: fbviewer
 Section: creality
 SourceDateEpoch: 1703483973

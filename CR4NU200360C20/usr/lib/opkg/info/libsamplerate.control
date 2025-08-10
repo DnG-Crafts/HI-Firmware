@@ -1,7 +1,7 @@
 Package: libsamplerate
 Version: 1.0.9-f6730d03c3e7660bb6ecad8816f1b09c5825142a-1
 Depends: libc, librt, libpthread, libsndfile
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/libsamplerate
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/libsamplerate
 SourceName: libsamplerate
 License: GPL-2.0
 LicenseFiles: COPYING

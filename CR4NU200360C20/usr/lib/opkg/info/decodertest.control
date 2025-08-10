@@ -1,10 +1,10 @@
 Package: decodertest
 Version: 2.0-1
 Depends: libc, librt, libpthread, libcedarx, libstdcpp6
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/multimedia/tina_multimedia_demo/decodertest
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/allwinner/multimedia/tina_multimedia_demo/decodertest
 SourceName: decodertest
 Section: utils
 SourceDateEpoch: 1688356042
 Architecture: arm_cortex-a7_neon
-Installed-Size: 7363
+Installed-Size: 7370
 Description:  CedarX2.8 decodertest

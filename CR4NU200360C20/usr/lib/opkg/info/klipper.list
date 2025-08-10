@@ -350,6 +350,7 @@
 /usr/share/klipper/test/configs/sam4e8e.config
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/requests/__init__.pyc
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/basecommand.py
+/usr/share/klipper/klippy/extras/timer_read.pyc
 /usr/share/klipper/klippy/extras/tmc_uart.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/packaging/specifiers.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/utils/outdated.pyc
@@ -1439,6 +1440,7 @@
 /usr/share/klipper/docs/img/ringing-measure.jpg
 /usr/share/klipper/scripts/spi_flash/fatfs_lib.py
 /usr/share/klipper/klippy/extras/delayed_gcode.pyc
+/usr/share/klipper/klippy/extras/timer_read.py
 /usr/share/klipper/scripts/checkstack.py
 /usr/share/klippy-env/lib/python3.9/site-packages/pip/_vendor/pkg_resources/__init__.pyc
 /usr/share/klipper/docs/img/corner-dimple.jpg

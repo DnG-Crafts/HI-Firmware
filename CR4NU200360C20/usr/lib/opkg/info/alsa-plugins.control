@@ -1,7 +1,7 @@
 Package: alsa-plugins
 Version: 1.1.4-1
 Depends: libc, librt, libpthread, alsa-lib, libsamplerate, libspeexdsp
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/alsa-plugins
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/alsa-plugins
 SourceName: alsa-plugins
 License: LGPLv2.1 GPLv2
 LicenseFiles: COPYING aserver/COPYING

@@ -1,7 +1,7 @@
 Package: optee-client-3.7
 Version: 3.7.0-1
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/thirdparty/security/optee-client-3.7
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/thirdparty/security/optee-client-3.7
 SourceName: optee-client-3.7
 License: BSD 2-Clause
 LicenseFiles: LICENSE

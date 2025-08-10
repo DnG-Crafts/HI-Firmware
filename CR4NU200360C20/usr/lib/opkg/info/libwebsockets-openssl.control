@@ -2,7 +2,7 @@ Package: libwebsockets-openssl
 Version: 4.3.2-2
 Depends: libc, librt, libpthread, zlib, libcap, libopenssl1.1
 Provides: libwebsockets
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/libwebsockets
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/libwebsockets
 SourceName: libwebsockets-openssl
 License: LGPL-2.1+exception
 LicenseFiles: LICENSE
@@ -10,5 +10,5 @@ Section: libs
 SourceDateEpoch: 1733994814
 Maintainer: Karl Palsson <karlp@etactica.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 143282
+Installed-Size: 143278
 Description:  libwebsockets (OpenSSL)

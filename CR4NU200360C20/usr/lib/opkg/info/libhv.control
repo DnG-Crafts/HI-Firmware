@@ -1,10 +1,10 @@
 Package: libhv
 Version: v1.3.0
 Depends: libc, librt, libpthread, libstdcpp6
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/libhv
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/libhv
 SourceName: libhv
 Section: creality
-SourceDateEpoch: 1704279341
+SourceDateEpoch: 1748238818
 Architecture: arm_cortex-a7_neon
-Installed-Size: 170594
+Installed-Size: 170601
 Description:  with libhv support

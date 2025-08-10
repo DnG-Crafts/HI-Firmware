@@ -1,7 +1,7 @@
 Package: v4l-utils
 Version: 1.20.0-1
 Depends: libc, librt, libpthread, libv4l, libstdcpp6
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/libv4l
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/libv4l
 SourceName: v4l-utils
 License: GPL-2.0 LGPL-2.1
 LicenseFiles: COPYING COPYING.libv4l
@@ -9,7 +9,7 @@ Section: utils
 SourceDateEpoch: 1688356042
 Maintainer: Ted Hess <thess@kitschensync.net>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 432239
+Installed-Size: 431765
 Description:  libv4l is a collection of libraries which adds a thin abstraction layer on
  top of video4linux2 devices. The purpose of this (thin) layer is to make it
  easy for application writers to support a wide variety of devices without

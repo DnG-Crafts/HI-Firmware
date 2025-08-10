@@ -2,7 +2,7 @@ Package: libfuse1
 Version: 2.9.9-1
 Depends: libc, librt, libpthread, kmod-fuse, libpthread
 Provides: libfuse
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/fuse
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/utils/fuse
 SourceName: libfuse
 License: LGPL-2.1-only
 LicenseFiles: COPYING.LIB

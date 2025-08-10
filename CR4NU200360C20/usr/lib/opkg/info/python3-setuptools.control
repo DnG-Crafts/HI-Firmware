@@ -1,7 +1,7 @@
 Package: python3-setuptools
 Version: 58.1.0-1
 Depends: libc, librt, libpthread, python3, python3-pkg-resources
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-setuptools
 License: MIT
 LicenseFiles: LICENSE
@@ -10,5 +10,5 @@ SourceDateEpoch: 1722154739
 CPE-ID: cpe:/a:python:python
 Maintainer: Jeffery To <jeffery.to@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 503194
+Installed-Size: 503189
 Description:  Python 3.9 setuptools module

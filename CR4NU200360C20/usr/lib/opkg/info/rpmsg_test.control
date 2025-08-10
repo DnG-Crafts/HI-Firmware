@@ -1,7 +1,7 @@
 Package: rpmsg_test
 Version: 1.2.0-1
 Depends: libc, librt, libpthread, librpmsg, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/common/rpmsg
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/allwinner/common/rpmsg
 SourceName: rpmsg_test
 Section: allwinner
 SourceDateEpoch: 1688356042

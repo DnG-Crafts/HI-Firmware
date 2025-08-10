@@ -1,7 +1,7 @@
 Package: ota-burnboot
 Version: 0.1-0.1
 Depends: libc, librt, libpthread, libc
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/allwinner/system/ota-burnboot
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/allwinner/system/ota-burnboot
 SourceName: ota-burnboot
 Section: utils
 SourceDateEpoch: 1688356042

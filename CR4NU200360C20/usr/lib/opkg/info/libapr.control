@@ -1,7 +1,7 @@
 Package: libapr
 Version: 1.7.0-3
 Depends: libc, librt, libpthread, libpthread, librt, libuuid1
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/apr
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/apr
 SourceName: libapr
 License: Apache-2.0
 LicenseFiles: LICENSE

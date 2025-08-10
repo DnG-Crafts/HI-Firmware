@@ -1,7 +1,7 @@
 Package: libgdbm
 Version: 1.18.1-2
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/gdbm
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/gdbm
 SourceName: libgdbm
 License: GPL-3.0-or-later
 LicenseFiles: COPYING
@@ -9,7 +9,7 @@ Section: libs
 SourceDateEpoch: 1688356042
 Maintainer: Marcel Denia <naoir@gmx.net>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 19515
+Installed-Size: 19519
 Description:  GNU database manager library
  GNU dbm is a set of database routines that use extendible hashing and
  works similar to the standard UNIX dbm routines.

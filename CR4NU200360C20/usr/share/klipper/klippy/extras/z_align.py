@@ -86,21 +86,33 @@ class Zalign:
     def cmd_ZDOWN_SWITCH(self, gcmd):
         self.zdown_switch_enable = gcmd.get_int('ENABLE', default=1)
 
-    
-    def cmd_UP_SAFE_Z(self, gcmd):
-        self.gcode.respond_info("cmd_UP_SAFE_Z start")
+    def check_zlimit_state(self):
         reactor = self.printer.get_reactor()
         #读取限位状态 避免限位开关异常下怼平台
-        gcode = self.printer.lookup_object('gcode')
         fb1 = self.printer.lookup_object('filament_switch_sensor filament_sensor_4',None)
         fb2 = self.printer.lookup_object('filament_switch_sensor filament_sensor_5',None)
         if fb1 is not None:
             z1_limit_state = fb1.get_status(None).get("filament_detected")
         if fb2 is not None:
             z2_limit_state = fb2.get_status(None).get("filament_detected")
+ 
         if z1_limit_state and z2_limit_state:   #判断限位状态
-            err_msg = """{"code":"key357", "msg":"光电开关状态异常或者是热床过于倾斜", "values":[]}"""
-            raise gcode._respond_error(err_msg)
+            self.gcode.run_script_from_command('FORCE_MOVE STEPPER=stepper_z DISTANCE=-0.5 VELOCITY=10')
+            self.gcode.run_script_from_command('FORCE_MOVE STEPPER=stepper_z1 DISTANCE=-0.5 VELOCITY=10')
+            self.gcode.run_script_from_command('M400')
+            # self.gcode.run_script_from_command("SET_STEPPER_ENABLE STEPPER=stepper_z ENABLE=0")
+            # self.gcode.run_script_from_command("SET_STEPPER_ENABLE STEPPER=stepper_z1 ENABLE=0")
+            reactor.pause(reactor.monotonic() + 1.0) #暂停1s 
+            z1_limit_state = fb1.get_status(None).get("filament_detected")
+            z2_limit_state = fb2.get_status(None).get("filament_detected")
+            if z1_limit_state and z2_limit_state:   #二次判断
+                err_msg = """{"code":"key357", "msg":"光电开关状态异常或者是热床过于倾斜", "values":[]}"""
+                raise self.gcode._respond_error(err_msg)
+    
+    def cmd_UP_SAFE_Z(self, gcmd):
+        self.gcode.respond_info("cmd_UP_SAFE_Z start")
+        reactor = self.printer.get_reactor()
+        self.check_zlimit_state()  #zlimit_state
 
         query_z_align = self.mcu.lookup_query_command("query_z_align_up oid=%c enable=%c quickSpeed=%u slowSpeed=%u risingDist=%u filterCnt=%c",
                                                 "z_align_status oid=%c flag=%i deltaError1=%i", oid=self.oidz1)    
@@ -132,6 +144,7 @@ class Zalign:
         # {'oid': 1, 'flag': 0, 'deltaError1': 5, '#name': 'z_align_status', '#sent_time': 49.895344040666664, '#receive_time': 49.995911207}
         curtime = reactor.monotonic()
         reactor.pause(reactor.monotonic() + 1.0)
+        deltaError = 0
         while True:
             nowtime = reactor.monotonic()
             usetime = nowtime-curtime

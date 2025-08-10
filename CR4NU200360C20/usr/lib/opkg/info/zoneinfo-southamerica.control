@@ -1,7 +1,7 @@
 Package: zoneinfo-southamerica
 Version: 2021a-1
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/zoneinfo
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/utils/zoneinfo
 SourceName: zoneinfo-southamerica
 License: Public Domain
 Section: utils

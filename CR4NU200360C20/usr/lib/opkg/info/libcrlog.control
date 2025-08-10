@@ -1,7 +1,7 @@
 Package: libcrlog
 Version: 662a4714
 Depends: libc, librt, libpthread, libjson-c5
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/libcrlog
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/libcrlog
 SourceName: libcrlog
 Section: creality
 SourceDateEpoch: 1704280096

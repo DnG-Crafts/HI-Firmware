@@ -1,7 +1,7 @@
 Package: python3-curl
 Version: 7.43.0.6-1
 Depends: libc, librt, libpthread, libcurl4, python3
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-curl
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python-curl
 SourceName: python3-curl
 License: LGPL-2.1
 LicenseFiles: COPYING-LGPL

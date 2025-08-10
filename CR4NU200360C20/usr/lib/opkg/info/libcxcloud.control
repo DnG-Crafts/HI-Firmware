@@ -1,10 +1,10 @@
 Package: libcxcloud
 Version: 5568d74d
 Depends: libc, librt, libpthread, libcrlog, aliyun-oss-cpp-sdk, libapr, libaprutil, libopenssl1.1, libcurl4, libjson-c5, jsoncpp, mxml, paho-mqtt-c, libstdcpp6, libuuid1, libpng, libqrencode, aliyun-oss-c-sdk, aliyun-vod-sdk
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/libcxcloud
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/libcxcloud
 SourceName: libcxcloud
 Section: creality
 SourceDateEpoch: 1716609694
 Architecture: arm_cortex-a7_neon
-Installed-Size: 91932
+Installed-Size: 91940
 Description:  with libcxcloud support

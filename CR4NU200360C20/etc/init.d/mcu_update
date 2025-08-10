@@ -299,8 +299,6 @@ auto_update()
                     fw_dir=F009
                 elif [ "$model" = "F010" ]; then
                     fw_dir=F010
-		elif [ "$model" = "F011" ]; then
-                    fw_dir=F011
                 elif [ "$model" = "F018" ]; then
                     fw_dir=F018
                     need_extruder=true

@@ -7,5 +7,5 @@ License: GPL-2.0
 Section: kernel
 SourceDateEpoch: 1688356042
 Architecture: arm_cortex-a7_neon
-Installed-Size: 19825
+Installed-Size: 19846
 Description:  Enable support for gt9xxnew touchscreen port.

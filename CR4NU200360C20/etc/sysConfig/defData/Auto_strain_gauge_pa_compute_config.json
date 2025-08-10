@@ -1,0 +1,13 @@
+{
+    "filename": "/tmp/saved_whole_stress.csv",
+    "column": 1,
+    "peakValue": 1.0,
+    "tol": 1e-6,
+    "fraction": 0.1,
+    "riseWindow": 3,
+    "riseThreshold": 4,
+    "riseMinGrowth": 0.3,
+    "gaussSigma": 2.0,
+    "valleyProminence": 10000.0
+}
+  

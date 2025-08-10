@@ -1,7 +1,7 @@
 Package: python-lmdb
 Version: 0.97-1
 Depends: libc, librt, libpthread, python3
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-lmdb
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python-lmdb
 SourceName: python-lmdb
 License: OLDAP-2.8
 LicenseFiles: LICENSE

@@ -1,7 +1,7 @@
 Package: libattr
 Version: 2.4.48-1
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/attr
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/utils/attr
 SourceName: libattr
 License: LGPL-2.1 GPL-2.0
 LicenseFiles: doc/COPYING doc/COPYING.LGPL

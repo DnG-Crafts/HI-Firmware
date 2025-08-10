@@ -1,7 +1,7 @@
 Package: fdk-aac
 Version: 2.0.1-4
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/sound/fdk-aac
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/sound/fdk-aac
 SourceName: fdk-aac
 License: Fraunhofer-FDK-AAC-for-Android
 LicenseFiles: NOTICE
@@ -9,5 +9,5 @@ Section: sound
 SourceDateEpoch: 1688356042
 Maintainer: Ted Hess <thess@kitschensync.net>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 487866
+Installed-Size: 487868
 Description:  Port of the Fraunhofer FDK AAC Codec Library for Android

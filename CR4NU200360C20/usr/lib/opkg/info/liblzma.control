@@ -1,7 +1,7 @@
 Package: liblzma
 Version: 5.2.5-1
 Depends: libc, librt, libpthread, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/xz
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/utils/xz
 SourceName: liblzma
 License: Public-Domain LGPL-2.1-or-later GPL-2.0-or-later GPL-3.0-or-later
 LicenseFiles: COPYING

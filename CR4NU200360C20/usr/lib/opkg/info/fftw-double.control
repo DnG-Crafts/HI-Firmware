@@ -1,7 +1,7 @@
 Package: fftw-double
 Version: 3.3.8
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/fftw-double
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/fftw-double
 SourceName: fftw-double
 Section: creality
 SourceDateEpoch: 1702192833

@@ -219,7 +219,10 @@ class GCodeMove:
             speed_mode_path = v_sd.speed_mode_path
             if SAVE==1:
                 result = {}
-                result["speed_mode"] = 1
+                if speed_S > 100:
+                    result["speed_mode"] = 3
+                else:
+                    result["speed_mode"] = 1
                 result["value"] = speed_S
                 with open(speed_mode_path, "w") as f:
                     f.write(json.dumps(result))

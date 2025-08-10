@@ -232,14 +232,6 @@
       } }];
     }
     Iterable2.consume = consume;
-    async function asyncToArray(iterable) {
-      const result = [];
-      for await (const item of iterable) {
-        result.push(item);
-      }
-      return Promise.resolve(result);
-    }
-    Iterable2.asyncToArray = asyncToArray;
   })(Iterable || (Iterable = {}));
 
   // node_modules/monaco-editor/esm/vs/base/common/lifecycle.js
@@ -428,6 +420,60 @@
   };
   Disposable.None = Object.freeze({ dispose() {
   } });
+  var DisposableMap = class {
+    constructor() {
+      this._store = /* @__PURE__ */ new Map();
+      this._isDisposed = false;
+      trackDisposable(this);
+    }
+    /**
+     * Disposes of all stored values and mark this object as disposed.
+     *
+     * Trying to use this object after it has been disposed of is an error.
+     */
+    dispose() {
+      markAsDisposed(this);
+      this._isDisposed = true;
+      this.clearAndDisposeAll();
+    }
+    /**
+     * Disposes of all stored values and clear the map, but DO NOT mark this object as disposed.
+     */
+    clearAndDisposeAll() {
+      if (!this._store.size) {
+        return;
+      }
+      try {
+        dispose(this._store.values());
+      } finally {
+        this._store.clear();
+      }
+    }
+    get(key) {
+      return this._store.get(key);
+    }
+    set(key, value, skipDisposeOnOverwrite = false) {
+      var _a4;
+      if (this._isDisposed) {
+        console.warn(new Error("Trying to add a disposable to a DisposableMap that has already been disposed of. The added object will be leaked!").stack);
+      }
+      if (!skipDisposeOnOverwrite) {
+        (_a4 = this._store.get(key)) === null || _a4 === void 0 ? void 0 : _a4.dispose();
+      }
+      this._store.set(key, value);
+    }
+    /**
+     * Delete the value stored for `key` from this map and also dispose of it.
+     */
+    deleteAndDispose(key) {
+      var _a4;
+      (_a4 = this._store.get(key)) === null || _a4 === void 0 ? void 0 : _a4.dispose();
+      this._store.delete(key);
+    }
+    [Symbol.iterator]() {
+      return this._store[Symbol.iterator]();
+    }
+  };
 
   // node_modules/monaco-editor/esm/vs/base/common/linkedList.js
   var Node = class _Node {
@@ -551,10 +597,6 @@
     stop() {
       this._stopTime = this._now();
     }
-    reset() {
-      this._startTime = this._now();
-      this._stopTime = -1;
-    }
     elapsed() {
       if (this._stopTime !== -1) {
         return this._stopTime - this._startTime;
@@ -564,7 +606,6 @@
   };
 
   // node_modules/monaco-editor/esm/vs/base/common/event.js
-  var _enableListenerGCedWarning = false;
   var _enableDisposeWithListenerWarning = false;
   var _enableSnapshotPotentialLeakWarning = false;
   var Event;
@@ -588,7 +629,7 @@
       return debounce(event, () => void 0, 0, void 0, true, void 0, disposable);
     }
     Event2.defer = defer;
-    function once(event) {
+    function once2(event) {
       return (listener, thisArgs = null, disposables) => {
         let didFire = false;
         let result = void 0;
@@ -608,7 +649,7 @@
         return result;
       };
     }
-    Event2.once = once;
+    Event2.once = once2;
     function map(event, map2, disposable) {
       return snapshot((listener, thisArgs = null, disposables) => event((i) => listener.call(thisArgs, map2(i)), null, disposables), disposable);
     }
@@ -876,7 +917,7 @@
     }
     Event2.fromDOMEventEmitter = fromDOMEventEmitter;
     function toPromise(event) {
-      return new Promise((resolve2) => once(event)(resolve2));
+      return new Promise((resolve2) => once2(event)(resolve2));
     }
     Event2.toPromise = toPromise;
     function fromPromise(promise) {
@@ -896,6 +937,21 @@
       return event((e) => handler(e));
     }
     Event2.runAndSubscribe = runAndSubscribe;
+    function runAndSubscribeWithStore(event, handler) {
+      let store = null;
+      function run(e) {
+        store === null || store === void 0 ? void 0 : store.dispose();
+        store = new DisposableStore();
+        handler(e, store);
+      }
+      run(void 0);
+      const disposable = event((e) => run(e));
+      return toDisposable(() => {
+        disposable.dispose();
+        store === null || store === void 0 ? void 0 : store.dispose();
+      });
+    }
+    Event2.runAndSubscribeWithStore = runAndSubscribeWithStore;
     class EmitterObserver {
       constructor(_observable, store) {
         this._observable = _observable;
@@ -1078,23 +1134,17 @@
       }
     }
   };
-  var _listenerFinalizers = _enableListenerGCedWarning ? new FinalizationRegistry((heldValue) => {
-    if (typeof heldValue === "string") {
-      console.warn("[LEAKING LISTENER] GC'ed a listener that was NOT yet disposed. This is where is was created:");
-      console.warn(heldValue);
-    }
-  }) : void 0;
   var Emitter = class {
     constructor(options) {
-      var _a4, _b3, _c, _d, _e;
+      var _a4, _b2, _c, _d, _e;
       this._size = 0;
       this._options = options;
-      this._leakageMon = _globalLeakWarningThreshold > 0 || ((_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.leakWarningThreshold) ? new LeakageMonitor((_c = (_b3 = this._options) === null || _b3 === void 0 ? void 0 : _b3.leakWarningThreshold) !== null && _c !== void 0 ? _c : _globalLeakWarningThreshold) : void 0;
+      this._leakageMon = _globalLeakWarningThreshold > 0 || ((_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.leakWarningThreshold) ? new LeakageMonitor((_c = (_b2 = this._options) === null || _b2 === void 0 ? void 0 : _b2.leakWarningThreshold) !== null && _c !== void 0 ? _c : _globalLeakWarningThreshold) : void 0;
       this._perfMon = ((_d = this._options) === null || _d === void 0 ? void 0 : _d._profName) ? new EventProfiling(this._options._profName) : void 0;
       this._deliveryQueue = (_e = this._options) === null || _e === void 0 ? void 0 : _e.deliveryQueue;
     }
     dispose() {
-      var _a4, _b3, _c, _d;
+      var _a4, _b2, _c, _d;
       if (!this._disposed) {
         this._disposed = true;
         if (((_a4 = this._deliveryQueue) === null || _a4 === void 0 ? void 0 : _a4.current) === this) {
@@ -1113,7 +1163,7 @@
           this._listeners = void 0;
           this._size = 0;
         }
-        (_c = (_b3 = this._options) === null || _b3 === void 0 ? void 0 : _b3.onDidRemoveLastListener) === null || _c === void 0 ? void 0 : _c.call(_b3);
+        (_c = (_b2 = this._options) === null || _b2 === void 0 ? void 0 : _b2.onDidRemoveLastListener) === null || _c === void 0 ? void 0 : _c.call(_b2);
         (_d = this._leakageMon) === null || _d === void 0 ? void 0 : _d.dispose();
       }
     }
@@ -1124,7 +1174,7 @@
     get event() {
       var _a4;
       (_a4 = this._event) !== null && _a4 !== void 0 ? _a4 : this._event = (callback, thisArgs, disposables) => {
-        var _a5, _b3, _c, _d, _e;
+        var _a5, _b2, _c, _d, _e;
         if (this._leakageMon && this._size > this._leakageMon.threshold * 3) {
           console.warn(`[${this._leakageMon.name}] REFUSES to accept new listeners because it exceeded its threshold by far`);
           return Disposable.None;
@@ -1146,7 +1196,7 @@
           contained.stack = stack !== null && stack !== void 0 ? stack : Stacktrace.create();
         }
         if (!this._listeners) {
-          (_b3 = (_a5 = this._options) === null || _a5 === void 0 ? void 0 : _a5.onWillAddFirstListener) === null || _b3 === void 0 ? void 0 : _b3.call(_a5, this);
+          (_b2 = (_a5 = this._options) === null || _a5 === void 0 ? void 0 : _a5.onWillAddFirstListener) === null || _b2 === void 0 ? void 0 : _b2.call(_a5, this);
           this._listeners = contained;
           (_d = (_c = this._options) === null || _c === void 0 ? void 0 : _c.onDidAddFirstListener) === null || _d === void 0 ? void 0 : _d.call(_c, this);
         } else if (this._listeners instanceof UniqueContainer) {
@@ -1157,7 +1207,6 @@
         }
         this._size++;
         const result = toDisposable(() => {
-          _listenerFinalizers === null || _listenerFinalizers === void 0 ? void 0 : _listenerFinalizers.unregister(result);
           removeMonitor === null || removeMonitor === void 0 ? void 0 : removeMonitor();
           this._removeListener(contained);
         });
@@ -1166,17 +1215,13 @@
         } else if (Array.isArray(disposables)) {
           disposables.push(result);
         }
-        if (_listenerFinalizers) {
-          const stack2 = new Error().stack.split("\n").slice(2).join("\n").trim();
-          _listenerFinalizers.register(result, stack2, result);
-        }
         return result;
       };
       return this._event;
     }
     _removeListener(listener) {
-      var _a4, _b3, _c, _d;
-      (_b3 = (_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.onWillRemoveListener) === null || _b3 === void 0 ? void 0 : _b3.call(_a4, this);
+      var _a4, _b2, _c, _d;
+      (_b2 = (_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.onWillRemoveListener) === null || _b2 === void 0 ? void 0 : _b2.call(_a4, this);
       if (!this._listeners) {
         return;
       }
@@ -1241,10 +1286,10 @@
      * subscribers
      */
     fire(event) {
-      var _a4, _b3, _c, _d;
+      var _a4, _b2, _c, _d;
       if ((_a4 = this._deliveryQueue) === null || _a4 === void 0 ? void 0 : _a4.current) {
         this._deliverQueue(this._deliveryQueue);
-        (_b3 = this._perfMon) === null || _b3 === void 0 ? void 0 : _b3.stop();
+        (_b2 = this._perfMon) === null || _b2 === void 0 ? void 0 : _b2.stop();
       }
       (_c = this._perfMon) === null || _c === void 0 ? void 0 : _c.start(this._size);
       if (!this._listeners) {
@@ -1349,7 +1394,6 @@
 
   // node_modules/monaco-editor/esm/vs/base/common/platform.js
   var _a;
-  var _b;
   var LANGUAGE_DEFAULT = "en";
   var _isWindows = false;
   var _isMacintosh = false;
@@ -1370,12 +1414,30 @@
   var nodeProcess = void 0;
   if (typeof $globalThis.vscode !== "undefined" && typeof $globalThis.vscode.process !== "undefined") {
     nodeProcess = $globalThis.vscode.process;
-  } else if (typeof process !== "undefined" && typeof ((_a = process === null || process === void 0 ? void 0 : process.versions) === null || _a === void 0 ? void 0 : _a.node) === "string") {
+  } else if (typeof process !== "undefined") {
     nodeProcess = process;
   }
-  var isElectronProcess = typeof ((_b = nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.versions) === null || _b === void 0 ? void 0 : _b.electron) === "string";
+  var isElectronProcess = typeof ((_a = nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.versions) === null || _a === void 0 ? void 0 : _a.electron) === "string";
   var isElectronRenderer = isElectronProcess && (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.type) === "renderer";
-  if (typeof nodeProcess === "object") {
+  if (typeof navigator === "object" && !isElectronRenderer) {
+    _userAgent = navigator.userAgent;
+    _isWindows = _userAgent.indexOf("Windows") >= 0;
+    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
+    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
+    _isLinux = _userAgent.indexOf("Linux") >= 0;
+    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
+    _isWeb = true;
+    const configuredLocale = getConfiguredDefaultLocale(
+      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
+      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
+      // This is because the loader plugin decides what the default locale is based on
+      // how it's able to resolve the strings.
+      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
+    );
+    _locale = configuredLocale || LANGUAGE_DEFAULT;
+    _language = _locale;
+    _platformLocale = navigator.language;
+  } else if (typeof nodeProcess === "object") {
     _isWindows = nodeProcess.platform === "win32";
     _isMacintosh = nodeProcess.platform === "darwin";
     _isLinux = nodeProcess.platform === "linux";
@@ -1397,24 +1459,6 @@
       }
     }
     _isNative = true;
-  } else if (typeof navigator === "object" && !isElectronRenderer) {
-    _userAgent = navigator.userAgent;
-    _isWindows = _userAgent.indexOf("Windows") >= 0;
-    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
-    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
-    _isLinux = _userAgent.indexOf("Linux") >= 0;
-    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
-    _isWeb = true;
-    const configuredLocale = getConfiguredDefaultLocale(
-      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
-      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
-      // This is because the loader plugin decides what the default locale is based on
-      // how it's able to resolve the strings.
-      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
-    );
-    _locale = configuredLocale || LANGUAGE_DEFAULT;
-    _language = _locale;
-    _platformLocale = navigator.language;
   } else {
     console.error("Unable to resolve platform.");
   }
@@ -1467,14 +1511,13 @@
 
   // node_modules/monaco-editor/esm/vs/base/common/cache.js
   var LRUCachedFunction = class {
-    constructor(fn, _computeKey = JSON.stringify) {
+    constructor(fn) {
       this.fn = fn;
-      this._computeKey = _computeKey;
       this.lastCache = void 0;
       this.lastArgKey = void 0;
     }
     get(arg) {
-      const key = this._computeKey(arg);
+      const key = JSON.stringify(arg);
       if (this.lastArgKey !== key) {
         this.lastArgKey = key;
         this.lastCache = this.fn(arg);
@@ -1982,7 +2025,7 @@
             delete loaderConfig.paths["vs"];
           }
         }
-        if (typeof loaderConfig.trustedTypesPolicy !== "undefined") {
+        if (typeof loaderConfig.trustedTypesPolicy !== void 0) {
           delete loaderConfig["trustedTypesPolicy"];
         }
         loaderConfig.catchError = true;
@@ -4307,7 +4350,7 @@
       return this;
     }
     static revive(data) {
-      var _a4, _b3;
+      var _a4, _b2;
       if (!data) {
         return data;
       } else if (data instanceof _URI) {
@@ -4315,7 +4358,7 @@
       } else {
         const result = new Uri(data);
         result._formatted = (_a4 = data.external) !== null && _a4 !== void 0 ? _a4 : null;
-        result._fsPath = data._sep === _pathSepMarker ? (_b3 = data.fsPath) !== null && _b3 !== void 0 ? _b3 : null : null;
+        result._fsPath = data._sep === _pathSepMarker ? (_b2 = data.fsPath) !== null && _b2 !== void 0 ? _b2 : null : null;
         return result;
       }
     }
@@ -6624,7 +6667,7 @@
     }
   };
 
-  // node_modules/monaco-editor/esm/vs/base/common/codiconsUtil.js
+  // node_modules/monaco-editor/esm/vs/base/common/codicons.js
   var _codiconFontCharacters = /* @__PURE__ */ Object.create(null);
   function register(id, fontCharacter) {
     if (isString(fontCharacter)) {
@@ -6637,9 +6680,8 @@
     _codiconFontCharacters[id] = fontCharacter;
     return { id };
   }
-
-  // node_modules/monaco-editor/esm/vs/base/common/codiconsLibrary.js
-  var codiconsLibrary = {
+  var Codicon = {
+    // built-in icons, with image name
     add: register("add", 6e4),
     plus: register("plus", 6e4),
     gistNew: register("gist-new", 6e4),
@@ -6655,9 +6697,9 @@
     recordKeys: register("record-keys", 60005),
     keyboard: register("keyboard", 60005),
     tag: register("tag", 60006),
-    gitPullRequestLabel: register("git-pull-request-label", 60006),
     tagAdd: register("tag-add", 60006),
     tagRemove: register("tag-remove", 60006),
+    gitPullRequestLabel: register("git-pull-request-label", 60006),
     person: register("person", 60007),
     personFollow: register("person-follow", 60007),
     personOutline: register("person-outline", 60007),
@@ -6691,7 +6733,6 @@
     debugBreakpoint: register("debug-breakpoint", 60017),
     debugBreakpointDisabled: register("debug-breakpoint-disabled", 60017),
     debugHint: register("debug-hint", 60017),
-    terminalDecorationSuccess: register("terminal-decoration-success", 60017),
     primitiveSquare: register("primitive-square", 60018),
     edit: register("edit", 60019),
     pencil: register("pencil", 60019),
@@ -6803,6 +6844,7 @@
     check: register("check", 60082),
     checklist: register("checklist", 60083),
     chevronDown: register("chevron-down", 60084),
+    dropDownButton: register("drop-down-button", 60084),
     chevronLeft: register("chevron-left", 60085),
     chevronRight: register("chevron-right", 60086),
     chevronUp: register("chevron-up", 60087),
@@ -6810,10 +6852,9 @@
     chromeMaximize: register("chrome-maximize", 60089),
     chromeMinimize: register("chrome-minimize", 60090),
     chromeRestore: register("chrome-restore", 60091),
-    circleOutline: register("circle-outline", 60092),
     circle: register("circle", 60092),
+    circleOutline: register("circle-outline", 60092),
     debugBreakpointUnverified: register("debug-breakpoint-unverified", 60092),
-    terminalDecorationIncomplete: register("terminal-decoration-incomplete", 60092),
     circleSlash: register("circle-slash", 60093),
     circuitBoard: register("circuit-board", 60094),
     clearAll: register("clear-all", 60095),
@@ -6825,6 +6866,7 @@
     collapseAll: register("collapse-all", 60101),
     colorMode: register("color-mode", 60102),
     commentDiscussion: register("comment-discussion", 60103),
+    compareChanges: register("compare-changes", 60157),
     creditCard: register("credit-card", 60105),
     dash: register("dash", 60108),
     dashboard: register("dashboard", 60109),
@@ -6848,7 +6890,6 @@
     diffRemoved: register("diff-removed", 60127),
     diffRenamed: register("diff-renamed", 60128),
     diff: register("diff", 60129),
-    diffSidebyside: register("diff-sidebyside", 60129),
     discard: register("discard", 60130),
     editorLayout: register("editor-layout", 60131),
     emptyWindow: register("empty-window", 60132),
@@ -6877,7 +6918,6 @@
     gist: register("gist", 60155),
     gitCommit: register("git-commit", 60156),
     gitCompare: register("git-compare", 60157),
-    compareChanges: register("compare-changes", 60157),
     gitMerge: register("git-merge", 60158),
     githubAction: register("github-action", 60159),
     githubAlt: register("github-alt", 60160),
@@ -6890,11 +6930,13 @@
     horizontalRule: register("horizontal-rule", 60167),
     hubot: register("hubot", 60168),
     inbox: register("inbox", 60169),
+    issueClosed: register("issue-closed", 60324),
     issueReopened: register("issue-reopened", 60171),
     issues: register("issues", 60172),
     italic: register("italic", 60173),
     jersey: register("jersey", 60174),
     json: register("json", 60175),
+    bracket: register("bracket", 60175),
     kebabVertical: register("kebab-vertical", 60176),
     key: register("key", 60177),
     law: register("law", 60178),
@@ -6973,6 +7015,7 @@
     starHalf: register("star-half", 60250),
     symbolClass: register("symbol-class", 60251),
     symbolColor: register("symbol-color", 60252),
+    symbolCustomColor: register("symbol-customcolor", 60252),
     symbolConstant: register("symbol-constant", 60253),
     symbolEnumMember: register("symbol-enum-member", 60254),
     symbolField: register("symbol-field", 60255),
@@ -7024,7 +7067,6 @@
     debugStackframeActive: register("debug-stackframe-active", 60297),
     circleSmallFilled: register("circle-small-filled", 60298),
     debugStackframeDot: register("debug-stackframe-dot", 60298),
-    terminalDecorationMark: register("terminal-decoration-mark", 60298),
     debugStackframe: register("debug-stackframe", 60299),
     debugStackframeFocused: register("debug-stackframe-focused", 60299),
     debugBreakpointUnsupported: register("debug-breakpoint-unsupported", 60300),
@@ -7032,7 +7074,6 @@
     debugReverseContinue: register("debug-reverse-continue", 60302),
     debugStepBack: register("debug-step-back", 60303),
     debugRestartFrame: register("debug-restart-frame", 60304),
-    debugAlt: register("debug-alt", 60305),
     callIncoming: register("call-incoming", 60306),
     callOutgoing: register("call-outgoing", 60307),
     menu: register("menu", 60308),
@@ -7051,10 +7092,10 @@
     syncIgnored: register("sync-ignored", 60319),
     pinned: register("pinned", 60320),
     githubInverted: register("github-inverted", 60321),
+    debugAlt: register("debug-alt", 60305),
     serverProcess: register("server-process", 60322),
     serverEnvironment: register("server-environment", 60323),
     pass: register("pass", 60324),
-    issueClosed: register("issue-closed", 60324),
     stopCircle: register("stop-circle", 60325),
     playCircle: register("play-circle", 60326),
     record: register("record", 60327),
@@ -7062,7 +7103,7 @@
     vmConnect: register("vm-connect", 60329),
     cloud: register("cloud", 60330),
     merge: register("merge", 60331),
-    export: register("export", 60332),
+    exportIcon: register("export", 60332),
     graphLeft: register("graph-left", 60333),
     magnet: register("magnet", 60334),
     notebook: register("notebook", 60335),
@@ -7087,7 +7128,7 @@
     debugRerun: register("debug-rerun", 60352),
     workspaceTrusted: register("workspace-trusted", 60353),
     workspaceUntrusted: register("workspace-untrusted", 60354),
-    workspaceUnknown: register("workspace-unknown", 60355),
+    workspaceUnspecified: register("workspace-unspecified", 60355),
     terminalCmd: register("terminal-cmd", 60356),
     terminalDebian: register("terminal-debian", 60357),
     terminalLinux: register("terminal-linux", 60358),
@@ -7121,13 +7162,12 @@
     graphLine: register("graph-line", 60386),
     graphScatter: register("graph-scatter", 60387),
     pieChart: register("pie-chart", 60388),
-    bracket: register("bracket", 60175),
     bracketDot: register("bracket-dot", 60389),
     bracketError: register("bracket-error", 60390),
     lockSmall: register("lock-small", 60391),
     azureDevops: register("azure-devops", 60392),
     verifiedFilled: register("verified-filled", 60393),
-    newline: register("newline", 60394),
+    newLine: register("newline", 60394),
     layout: register("layout", 60395),
     layoutActivitybarLeft: register("layout-activitybar-left", 60396),
     layoutActivitybarRight: register("layout-activitybar-right", 60397),
@@ -7141,26 +7181,20 @@
     layoutStatusbar: register("layout-statusbar", 60405),
     layoutMenubar: register("layout-menubar", 60406),
     layoutCentered: register("layout-centered", 60407),
+    layoutSidebarRightOff: register("layout-sidebar-right-off", 60416),
+    layoutPanelOff: register("layout-panel-off", 60417),
+    layoutSidebarLeftOff: register("layout-sidebar-left-off", 60418),
     target: register("target", 60408),
     indent: register("indent", 60409),
     recordSmall: register("record-small", 60410),
     errorSmall: register("error-small", 60411),
-    terminalDecorationError: register("terminal-decoration-error", 60411),
     arrowCircleDown: register("arrow-circle-down", 60412),
     arrowCircleLeft: register("arrow-circle-left", 60413),
     arrowCircleRight: register("arrow-circle-right", 60414),
     arrowCircleUp: register("arrow-circle-up", 60415),
-    layoutSidebarRightOff: register("layout-sidebar-right-off", 60416),
-    layoutPanelOff: register("layout-panel-off", 60417),
-    layoutSidebarLeftOff: register("layout-sidebar-left-off", 60418),
-    blank: register("blank", 60419),
     heartFilled: register("heart-filled", 60420),
     map: register("map", 60421),
-    mapHorizontal: register("map-horizontal", 60421),
-    foldHorizontal: register("fold-horizontal", 60421),
     mapFilled: register("map-filled", 60422),
-    mapHorizontalFilled: register("map-horizontal-filled", 60422),
-    foldHorizontalFilled: register("fold-horizontal-filled", 60422),
     circleSmall: register("circle-small", 60423),
     bellSlash: register("bell-slash", 60424),
     bellSlashDot: register("bell-slash-dot", 60425),
@@ -7173,8 +7207,8 @@
     sparkle: register("sparkle", 60432),
     insert: register("insert", 60433),
     mic: register("mic", 60434),
-    thumbsdownFilled: register("thumbsdown-filled", 60435),
-    thumbsupFilled: register("thumbsup-filled", 60436),
+    thumbsDownFilled: register("thumbsdown-filled", 60435),
+    thumbsUpFilled: register("thumbsup-filled", 60436),
     coffee: register("coffee", 60437),
     snake: register("snake", 60438),
     game: register("game", 60439),
@@ -7183,33 +7217,15 @@
     piano: register("piano", 60442),
     music: register("music", 60443),
     micFilled: register("mic-filled", 60444),
-    repoFetch: register("repo-fetch", 60445),
+    gitFetch: register("git-fetch", 60445),
     copilot: register("copilot", 60446),
     lightbulbSparkle: register("lightbulb-sparkle", 60447),
+    lightbulbSparkleAutofix: register("lightbulb-sparkle-autofix", 60447),
     robot: register("robot", 60448),
     sparkleFilled: register("sparkle-filled", 60449),
     diffSingle: register("diff-single", 60450),
     diffMultiple: register("diff-multiple", 60451),
-    surroundWith: register("surround-with", 60452),
-    share: register("share", 60453),
-    gitStash: register("git-stash", 60454),
-    gitStashApply: register("git-stash-apply", 60455),
-    gitStashPop: register("git-stash-pop", 60456),
-    vscode: register("vscode", 60457),
-    vscodeInsiders: register("vscode-insiders", 60458),
-    codeOss: register("code-oss", 60459),
-    runCoverage: register("run-coverage", 60460),
-    runAllCoverage: register("run-all-coverage", 60461),
-    coverage: register("coverage", 60462),
-    githubProject: register("github-project", 60463),
-    mapVertical: register("map-vertical", 60464),
-    foldVertical: register("fold-vertical", 60464),
-    mapVerticalFilled: register("map-vertical-filled", 60465),
-    foldVerticalFilled: register("fold-vertical-filled", 60465)
-  };
-
-  // node_modules/monaco-editor/esm/vs/base/common/codicons.js
-  var codiconsDerived = {
+    // derived icons, that could become separate icons
     dialogError: register("dialog-error", "error"),
     dialogWarning: register("dialog-warning", "warning"),
     dialogInfo: register("dialog-info", "info"),
@@ -7228,21 +7244,7 @@
     scrollbarButtonUp: register("scrollbar-button-up", "triangle-up"),
     scrollbarButtonDown: register("scrollbar-button-down", "triangle-down"),
     toolBarMore: register("toolbar-more", "more"),
-    quickInputBack: register("quick-input-back", "arrow-left"),
-    dropDownButton: register("drop-down-button", 60084),
-    symbolCustomColor: register("symbol-customcolor", 60252),
-    exportIcon: register("export", 60332),
-    workspaceUnspecified: register("workspace-unspecified", 60355),
-    newLine: register("newline", 60394),
-    thumbsDownFilled: register("thumbsdown-filled", 60435),
-    thumbsUpFilled: register("thumbsup-filled", 60436),
-    gitFetch: register("git-fetch", 60445),
-    lightbulbSparkleAutofix: register("lightbulb-sparkle-autofix", 60447),
-    debugBreakpointPending: register("debug-breakpoint-pending", 60377)
-  };
-  var Codicon = {
-    ...codiconsLibrary,
-    ...codiconsDerived
+    quickInputBack: register("quick-input-back", "arrow-left")
   };
 
   // node_modules/monaco-editor/esm/vs/editor/common/tokenizationRegistry.js
@@ -7581,11 +7583,6 @@
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Automatic"] = 0] = "Automatic";
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Explicit"] = 1] = "Explicit";
   })(InlineCompletionTriggerKind || (InlineCompletionTriggerKind = {}));
-  var DocumentPasteTriggerKind;
-  (function(DocumentPasteTriggerKind2) {
-    DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["Automatic"] = 0] = "Automatic";
-    DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["PasteAs"] = 1] = "PasteAs";
-  })(DocumentPasteTriggerKind || (DocumentPasteTriggerKind = {}));
   var SignatureHelpTriggerKind;
   (function(SignatureHelpTriggerKind3) {
     SignatureHelpTriggerKind3[SignatureHelpTriggerKind3["Invoke"] = 1] = "Invoke";
@@ -7772,10 +7769,6 @@
   FoldingRangeKind.Comment = new FoldingRangeKind("comment");
   FoldingRangeKind.Imports = new FoldingRangeKind("imports");
   FoldingRangeKind.Region = new FoldingRangeKind("region");
-  var NewSymbolNameTag;
-  (function(NewSymbolNameTag3) {
-    NewSymbolNameTag3[NewSymbolNameTag3["AIGenerated"] = 1] = "AIGenerated";
-  })(NewSymbolNameTag || (NewSymbolNameTag = {}));
   var Command;
   (function(Command2) {
     function is(obj) {
@@ -7792,11 +7785,6 @@
     InlayHintKind3[InlayHintKind3["Parameter"] = 2] = "Parameter";
   })(InlayHintKind || (InlayHintKind = {}));
   var TokenizationRegistry2 = new TokenizationRegistry();
-  var InlineEditTriggerKind;
-  (function(InlineEditTriggerKind3) {
-    InlineEditTriggerKind3[InlineEditTriggerKind3["Invoke"] = 0] = "Invoke";
-    InlineEditTriggerKind3[InlineEditTriggerKind3["Automatic"] = 1] = "Automatic";
-  })(InlineEditTriggerKind || (InlineEditTriggerKind = {}));
 
   // node_modules/monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js
   var AccessibilitySupport;
@@ -7957,93 +7945,91 @@
     EditorOption2[EditorOption2["hover"] = 60] = "hover";
     EditorOption2[EditorOption2["inDiffEditor"] = 61] = "inDiffEditor";
     EditorOption2[EditorOption2["inlineSuggest"] = 62] = "inlineSuggest";
-    EditorOption2[EditorOption2["inlineEdit"] = 63] = "inlineEdit";
-    EditorOption2[EditorOption2["letterSpacing"] = 64] = "letterSpacing";
-    EditorOption2[EditorOption2["lightbulb"] = 65] = "lightbulb";
-    EditorOption2[EditorOption2["lineDecorationsWidth"] = 66] = "lineDecorationsWidth";
-    EditorOption2[EditorOption2["lineHeight"] = 67] = "lineHeight";
-    EditorOption2[EditorOption2["lineNumbers"] = 68] = "lineNumbers";
-    EditorOption2[EditorOption2["lineNumbersMinChars"] = 69] = "lineNumbersMinChars";
-    EditorOption2[EditorOption2["linkedEditing"] = 70] = "linkedEditing";
-    EditorOption2[EditorOption2["links"] = 71] = "links";
-    EditorOption2[EditorOption2["matchBrackets"] = 72] = "matchBrackets";
-    EditorOption2[EditorOption2["minimap"] = 73] = "minimap";
-    EditorOption2[EditorOption2["mouseStyle"] = 74] = "mouseStyle";
-    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 75] = "mouseWheelScrollSensitivity";
-    EditorOption2[EditorOption2["mouseWheelZoom"] = 76] = "mouseWheelZoom";
-    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 77] = "multiCursorMergeOverlapping";
-    EditorOption2[EditorOption2["multiCursorModifier"] = 78] = "multiCursorModifier";
-    EditorOption2[EditorOption2["multiCursorPaste"] = 79] = "multiCursorPaste";
-    EditorOption2[EditorOption2["multiCursorLimit"] = 80] = "multiCursorLimit";
-    EditorOption2[EditorOption2["occurrencesHighlight"] = 81] = "occurrencesHighlight";
-    EditorOption2[EditorOption2["overviewRulerBorder"] = 82] = "overviewRulerBorder";
-    EditorOption2[EditorOption2["overviewRulerLanes"] = 83] = "overviewRulerLanes";
-    EditorOption2[EditorOption2["padding"] = 84] = "padding";
-    EditorOption2[EditorOption2["pasteAs"] = 85] = "pasteAs";
-    EditorOption2[EditorOption2["parameterHints"] = 86] = "parameterHints";
-    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 87] = "peekWidgetDefaultFocus";
-    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 88] = "definitionLinkOpensInPeek";
-    EditorOption2[EditorOption2["quickSuggestions"] = 89] = "quickSuggestions";
-    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 90] = "quickSuggestionsDelay";
-    EditorOption2[EditorOption2["readOnly"] = 91] = "readOnly";
-    EditorOption2[EditorOption2["readOnlyMessage"] = 92] = "readOnlyMessage";
-    EditorOption2[EditorOption2["renameOnType"] = 93] = "renameOnType";
-    EditorOption2[EditorOption2["renderControlCharacters"] = 94] = "renderControlCharacters";
-    EditorOption2[EditorOption2["renderFinalNewline"] = 95] = "renderFinalNewline";
-    EditorOption2[EditorOption2["renderLineHighlight"] = 96] = "renderLineHighlight";
-    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 97] = "renderLineHighlightOnlyWhenFocus";
-    EditorOption2[EditorOption2["renderValidationDecorations"] = 98] = "renderValidationDecorations";
-    EditorOption2[EditorOption2["renderWhitespace"] = 99] = "renderWhitespace";
-    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 100] = "revealHorizontalRightPadding";
-    EditorOption2[EditorOption2["roundedSelection"] = 101] = "roundedSelection";
-    EditorOption2[EditorOption2["rulers"] = 102] = "rulers";
-    EditorOption2[EditorOption2["scrollbar"] = 103] = "scrollbar";
-    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 104] = "scrollBeyondLastColumn";
-    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 105] = "scrollBeyondLastLine";
-    EditorOption2[EditorOption2["scrollPredominantAxis"] = 106] = "scrollPredominantAxis";
-    EditorOption2[EditorOption2["selectionClipboard"] = 107] = "selectionClipboard";
-    EditorOption2[EditorOption2["selectionHighlight"] = 108] = "selectionHighlight";
-    EditorOption2[EditorOption2["selectOnLineNumbers"] = 109] = "selectOnLineNumbers";
-    EditorOption2[EditorOption2["showFoldingControls"] = 110] = "showFoldingControls";
-    EditorOption2[EditorOption2["showUnused"] = 111] = "showUnused";
-    EditorOption2[EditorOption2["snippetSuggestions"] = 112] = "snippetSuggestions";
-    EditorOption2[EditorOption2["smartSelect"] = 113] = "smartSelect";
-    EditorOption2[EditorOption2["smoothScrolling"] = 114] = "smoothScrolling";
-    EditorOption2[EditorOption2["stickyScroll"] = 115] = "stickyScroll";
-    EditorOption2[EditorOption2["stickyTabStops"] = 116] = "stickyTabStops";
-    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 117] = "stopRenderingLineAfter";
-    EditorOption2[EditorOption2["suggest"] = 118] = "suggest";
-    EditorOption2[EditorOption2["suggestFontSize"] = 119] = "suggestFontSize";
-    EditorOption2[EditorOption2["suggestLineHeight"] = 120] = "suggestLineHeight";
-    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 121] = "suggestOnTriggerCharacters";
-    EditorOption2[EditorOption2["suggestSelection"] = 122] = "suggestSelection";
-    EditorOption2[EditorOption2["tabCompletion"] = 123] = "tabCompletion";
-    EditorOption2[EditorOption2["tabIndex"] = 124] = "tabIndex";
-    EditorOption2[EditorOption2["unicodeHighlighting"] = 125] = "unicodeHighlighting";
-    EditorOption2[EditorOption2["unusualLineTerminators"] = 126] = "unusualLineTerminators";
-    EditorOption2[EditorOption2["useShadowDOM"] = 127] = "useShadowDOM";
-    EditorOption2[EditorOption2["useTabStops"] = 128] = "useTabStops";
-    EditorOption2[EditorOption2["wordBreak"] = 129] = "wordBreak";
-    EditorOption2[EditorOption2["wordSegmenterLocales"] = 130] = "wordSegmenterLocales";
-    EditorOption2[EditorOption2["wordSeparators"] = 131] = "wordSeparators";
-    EditorOption2[EditorOption2["wordWrap"] = 132] = "wordWrap";
-    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 133] = "wordWrapBreakAfterCharacters";
-    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 134] = "wordWrapBreakBeforeCharacters";
-    EditorOption2[EditorOption2["wordWrapColumn"] = 135] = "wordWrapColumn";
-    EditorOption2[EditorOption2["wordWrapOverride1"] = 136] = "wordWrapOverride1";
-    EditorOption2[EditorOption2["wordWrapOverride2"] = 137] = "wordWrapOverride2";
-    EditorOption2[EditorOption2["wrappingIndent"] = 138] = "wrappingIndent";
-    EditorOption2[EditorOption2["wrappingStrategy"] = 139] = "wrappingStrategy";
-    EditorOption2[EditorOption2["showDeprecated"] = 140] = "showDeprecated";
-    EditorOption2[EditorOption2["inlayHints"] = 141] = "inlayHints";
-    EditorOption2[EditorOption2["editorClassName"] = 142] = "editorClassName";
-    EditorOption2[EditorOption2["pixelRatio"] = 143] = "pixelRatio";
-    EditorOption2[EditorOption2["tabFocusMode"] = 144] = "tabFocusMode";
-    EditorOption2[EditorOption2["layoutInfo"] = 145] = "layoutInfo";
-    EditorOption2[EditorOption2["wrappingInfo"] = 146] = "wrappingInfo";
-    EditorOption2[EditorOption2["defaultColorDecorators"] = 147] = "defaultColorDecorators";
-    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 148] = "colorDecoratorsActivatedOn";
-    EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 149] = "inlineCompletionsAccessibilityVerbose";
+    EditorOption2[EditorOption2["letterSpacing"] = 63] = "letterSpacing";
+    EditorOption2[EditorOption2["lightbulb"] = 64] = "lightbulb";
+    EditorOption2[EditorOption2["lineDecorationsWidth"] = 65] = "lineDecorationsWidth";
+    EditorOption2[EditorOption2["lineHeight"] = 66] = "lineHeight";
+    EditorOption2[EditorOption2["lineNumbers"] = 67] = "lineNumbers";
+    EditorOption2[EditorOption2["lineNumbersMinChars"] = 68] = "lineNumbersMinChars";
+    EditorOption2[EditorOption2["linkedEditing"] = 69] = "linkedEditing";
+    EditorOption2[EditorOption2["links"] = 70] = "links";
+    EditorOption2[EditorOption2["matchBrackets"] = 71] = "matchBrackets";
+    EditorOption2[EditorOption2["minimap"] = 72] = "minimap";
+    EditorOption2[EditorOption2["mouseStyle"] = 73] = "mouseStyle";
+    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 74] = "mouseWheelScrollSensitivity";
+    EditorOption2[EditorOption2["mouseWheelZoom"] = 75] = "mouseWheelZoom";
+    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 76] = "multiCursorMergeOverlapping";
+    EditorOption2[EditorOption2["multiCursorModifier"] = 77] = "multiCursorModifier";
+    EditorOption2[EditorOption2["multiCursorPaste"] = 78] = "multiCursorPaste";
+    EditorOption2[EditorOption2["multiCursorLimit"] = 79] = "multiCursorLimit";
+    EditorOption2[EditorOption2["occurrencesHighlight"] = 80] = "occurrencesHighlight";
+    EditorOption2[EditorOption2["overviewRulerBorder"] = 81] = "overviewRulerBorder";
+    EditorOption2[EditorOption2["overviewRulerLanes"] = 82] = "overviewRulerLanes";
+    EditorOption2[EditorOption2["padding"] = 83] = "padding";
+    EditorOption2[EditorOption2["pasteAs"] = 84] = "pasteAs";
+    EditorOption2[EditorOption2["parameterHints"] = 85] = "parameterHints";
+    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 86] = "peekWidgetDefaultFocus";
+    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 87] = "definitionLinkOpensInPeek";
+    EditorOption2[EditorOption2["quickSuggestions"] = 88] = "quickSuggestions";
+    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 89] = "quickSuggestionsDelay";
+    EditorOption2[EditorOption2["readOnly"] = 90] = "readOnly";
+    EditorOption2[EditorOption2["readOnlyMessage"] = 91] = "readOnlyMessage";
+    EditorOption2[EditorOption2["renameOnType"] = 92] = "renameOnType";
+    EditorOption2[EditorOption2["renderControlCharacters"] = 93] = "renderControlCharacters";
+    EditorOption2[EditorOption2["renderFinalNewline"] = 94] = "renderFinalNewline";
+    EditorOption2[EditorOption2["renderLineHighlight"] = 95] = "renderLineHighlight";
+    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 96] = "renderLineHighlightOnlyWhenFocus";
+    EditorOption2[EditorOption2["renderValidationDecorations"] = 97] = "renderValidationDecorations";
+    EditorOption2[EditorOption2["renderWhitespace"] = 98] = "renderWhitespace";
+    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 99] = "revealHorizontalRightPadding";
+    EditorOption2[EditorOption2["roundedSelection"] = 100] = "roundedSelection";
+    EditorOption2[EditorOption2["rulers"] = 101] = "rulers";
+    EditorOption2[EditorOption2["scrollbar"] = 102] = "scrollbar";
+    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 103] = "scrollBeyondLastColumn";
+    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 104] = "scrollBeyondLastLine";
+    EditorOption2[EditorOption2["scrollPredominantAxis"] = 105] = "scrollPredominantAxis";
+    EditorOption2[EditorOption2["selectionClipboard"] = 106] = "selectionClipboard";
+    EditorOption2[EditorOption2["selectionHighlight"] = 107] = "selectionHighlight";
+    EditorOption2[EditorOption2["selectOnLineNumbers"] = 108] = "selectOnLineNumbers";
+    EditorOption2[EditorOption2["showFoldingControls"] = 109] = "showFoldingControls";
+    EditorOption2[EditorOption2["showUnused"] = 110] = "showUnused";
+    EditorOption2[EditorOption2["snippetSuggestions"] = 111] = "snippetSuggestions";
+    EditorOption2[EditorOption2["smartSelect"] = 112] = "smartSelect";
+    EditorOption2[EditorOption2["smoothScrolling"] = 113] = "smoothScrolling";
+    EditorOption2[EditorOption2["stickyScroll"] = 114] = "stickyScroll";
+    EditorOption2[EditorOption2["stickyTabStops"] = 115] = "stickyTabStops";
+    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 116] = "stopRenderingLineAfter";
+    EditorOption2[EditorOption2["suggest"] = 117] = "suggest";
+    EditorOption2[EditorOption2["suggestFontSize"] = 118] = "suggestFontSize";
+    EditorOption2[EditorOption2["suggestLineHeight"] = 119] = "suggestLineHeight";
+    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 120] = "suggestOnTriggerCharacters";
+    EditorOption2[EditorOption2["suggestSelection"] = 121] = "suggestSelection";
+    EditorOption2[EditorOption2["tabCompletion"] = 122] = "tabCompletion";
+    EditorOption2[EditorOption2["tabIndex"] = 123] = "tabIndex";
+    EditorOption2[EditorOption2["unicodeHighlighting"] = 124] = "unicodeHighlighting";
+    EditorOption2[EditorOption2["unusualLineTerminators"] = 125] = "unusualLineTerminators";
+    EditorOption2[EditorOption2["useShadowDOM"] = 126] = "useShadowDOM";
+    EditorOption2[EditorOption2["useTabStops"] = 127] = "useTabStops";
+    EditorOption2[EditorOption2["wordBreak"] = 128] = "wordBreak";
+    EditorOption2[EditorOption2["wordSeparators"] = 129] = "wordSeparators";
+    EditorOption2[EditorOption2["wordWrap"] = 130] = "wordWrap";
+    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 131] = "wordWrapBreakAfterCharacters";
+    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 132] = "wordWrapBreakBeforeCharacters";
+    EditorOption2[EditorOption2["wordWrapColumn"] = 133] = "wordWrapColumn";
+    EditorOption2[EditorOption2["wordWrapOverride1"] = 134] = "wordWrapOverride1";
+    EditorOption2[EditorOption2["wordWrapOverride2"] = 135] = "wordWrapOverride2";
+    EditorOption2[EditorOption2["wrappingIndent"] = 136] = "wrappingIndent";
+    EditorOption2[EditorOption2["wrappingStrategy"] = 137] = "wrappingStrategy";
+    EditorOption2[EditorOption2["showDeprecated"] = 138] = "showDeprecated";
+    EditorOption2[EditorOption2["inlayHints"] = 139] = "inlayHints";
+    EditorOption2[EditorOption2["editorClassName"] = 140] = "editorClassName";
+    EditorOption2[EditorOption2["pixelRatio"] = 141] = "pixelRatio";
+    EditorOption2[EditorOption2["tabFocusMode"] = 142] = "tabFocusMode";
+    EditorOption2[EditorOption2["layoutInfo"] = 143] = "layoutInfo";
+    EditorOption2[EditorOption2["wrappingInfo"] = 144] = "wrappingInfo";
+    EditorOption2[EditorOption2["defaultColorDecorators"] = 145] = "defaultColorDecorators";
+    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 146] = "colorDecoratorsActivatedOn";
+    EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 147] = "inlineCompletionsAccessibilityVerbose";
   })(EditorOption || (EditorOption = {}));
   var EndOfLinePreference;
   (function(EndOfLinePreference2) {
@@ -8059,8 +8045,7 @@
   var GlyphMarginLane;
   (function(GlyphMarginLane3) {
     GlyphMarginLane3[GlyphMarginLane3["Left"] = 1] = "Left";
-    GlyphMarginLane3[GlyphMarginLane3["Center"] = 2] = "Center";
-    GlyphMarginLane3[GlyphMarginLane3["Right"] = 3] = "Right";
+    GlyphMarginLane3[GlyphMarginLane3["Right"] = 2] = "Right";
   })(GlyphMarginLane || (GlyphMarginLane = {}));
   var IndentAction;
   (function(IndentAction2) {
@@ -8086,11 +8071,6 @@
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Automatic"] = 0] = "Automatic";
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Explicit"] = 1] = "Explicit";
   })(InlineCompletionTriggerKind2 || (InlineCompletionTriggerKind2 = {}));
-  var InlineEditTriggerKind2;
-  (function(InlineEditTriggerKind3) {
-    InlineEditTriggerKind3[InlineEditTriggerKind3["Invoke"] = 0] = "Invoke";
-    InlineEditTriggerKind3[InlineEditTriggerKind3["Automatic"] = 1] = "Automatic";
-  })(InlineEditTriggerKind2 || (InlineEditTriggerKind2 = {}));
   var KeyCode;
   (function(KeyCode2) {
     KeyCode2[KeyCode2["DependsOnKbLayout"] = -1] = "DependsOnKbLayout";
@@ -8241,15 +8221,10 @@
     MarkerTag2[MarkerTag2["Deprecated"] = 2] = "Deprecated";
   })(MarkerTag || (MarkerTag = {}));
   var MinimapPosition;
-  (function(MinimapPosition2) {
-    MinimapPosition2[MinimapPosition2["Inline"] = 1] = "Inline";
-    MinimapPosition2[MinimapPosition2["Gutter"] = 2] = "Gutter";
+  (function(MinimapPosition3) {
+    MinimapPosition3[MinimapPosition3["Inline"] = 1] = "Inline";
+    MinimapPosition3[MinimapPosition3["Gutter"] = 2] = "Gutter";
   })(MinimapPosition || (MinimapPosition = {}));
-  var MinimapSectionHeaderStyle;
-  (function(MinimapSectionHeaderStyle2) {
-    MinimapSectionHeaderStyle2[MinimapSectionHeaderStyle2["Normal"] = 1] = "Normal";
-    MinimapSectionHeaderStyle2[MinimapSectionHeaderStyle2["Underlined"] = 2] = "Underlined";
-  })(MinimapSectionHeaderStyle || (MinimapSectionHeaderStyle = {}));
   var MouseTargetType;
   (function(MouseTargetType2) {
     MouseTargetType2[MouseTargetType2["UNKNOWN"] = 0] = "UNKNOWN";
@@ -8267,10 +8242,6 @@
     MouseTargetType2[MouseTargetType2["OVERLAY_WIDGET"] = 12] = "OVERLAY_WIDGET";
     MouseTargetType2[MouseTargetType2["OUTSIDE_EDITOR"] = 13] = "OUTSIDE_EDITOR";
   })(MouseTargetType || (MouseTargetType = {}));
-  var NewSymbolNameTag2;
-  (function(NewSymbolNameTag3) {
-    NewSymbolNameTag3[NewSymbolNameTag3["AIGenerated"] = 1] = "AIGenerated";
-  })(NewSymbolNameTag2 || (NewSymbolNameTag2 = {}));
   var OverlayWidgetPositionPreference;
   (function(OverlayWidgetPositionPreference2) {
     OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["TOP_RIGHT_CORNER"] = 0] = "TOP_RIGHT_CORNER";
@@ -8284,12 +8255,6 @@
     OverviewRulerLane3[OverviewRulerLane3["Right"] = 4] = "Right";
     OverviewRulerLane3[OverviewRulerLane3["Full"] = 7] = "Full";
   })(OverviewRulerLane || (OverviewRulerLane = {}));
-  var PartialAcceptTriggerKind;
-  (function(PartialAcceptTriggerKind2) {
-    PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Word"] = 0] = "Word";
-    PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Line"] = 1] = "Line";
-    PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Suggest"] = 2] = "Suggest";
-  })(PartialAcceptTriggerKind || (PartialAcceptTriggerKind = {}));
   var PositionAffinity;
   (function(PositionAffinity2) {
     PositionAffinity2[PositionAffinity2["Left"] = 0] = "Left";
@@ -8328,12 +8293,12 @@
     SelectionDirection2[SelectionDirection2["LTR"] = 0] = "LTR";
     SelectionDirection2[SelectionDirection2["RTL"] = 1] = "RTL";
   })(SelectionDirection || (SelectionDirection = {}));
-  var ShowLightbulbIconMode;
-  (function(ShowLightbulbIconMode2) {
-    ShowLightbulbIconMode2["Off"] = "off";
-    ShowLightbulbIconMode2["OnCode"] = "onCode";
-    ShowLightbulbIconMode2["On"] = "on";
-  })(ShowLightbulbIconMode || (ShowLightbulbIconMode = {}));
+  var ShowAiIconMode;
+  (function(ShowAiIconMode2) {
+    ShowAiIconMode2["Off"] = "off";
+    ShowAiIconMode2["OnCode"] = "onCode";
+    ShowAiIconMode2["On"] = "on";
+  })(ShowAiIconMode || (ShowAiIconMode = {}));
   var SignatureHelpTriggerKind2;
   (function(SignatureHelpTriggerKind3) {
     SignatureHelpTriggerKind3[SignatureHelpTriggerKind3["Invoke"] = 1] = "Invoke";
@@ -8437,482 +8402,42 @@
     };
   }
 
-  // node_modules/monaco-editor/esm/vs/base/common/map.js
-  var _a3;
-  var _b2;
-  var ResourceMapEntry = class {
-    constructor(uri, value) {
-      this.uri = uri;
-      this.value = value;
-    }
-  };
-  function isEntries(arg) {
-    return Array.isArray(arg);
-  }
-  var ResourceMap = class _ResourceMap {
-    constructor(arg, toKey) {
-      this[_a3] = "ResourceMap";
-      if (arg instanceof _ResourceMap) {
-        this.map = new Map(arg.map);
-        this.toKey = toKey !== null && toKey !== void 0 ? toKey : _ResourceMap.defaultToKey;
-      } else if (isEntries(arg)) {
-        this.map = /* @__PURE__ */ new Map();
-        this.toKey = toKey !== null && toKey !== void 0 ? toKey : _ResourceMap.defaultToKey;
-        for (const [resource, value] of arg) {
-          this.set(resource, value);
-        }
-      } else {
-        this.map = /* @__PURE__ */ new Map();
-        this.toKey = arg !== null && arg !== void 0 ? arg : _ResourceMap.defaultToKey;
-      }
-    }
-    set(resource, value) {
-      this.map.set(this.toKey(resource), new ResourceMapEntry(resource, value));
-      return this;
-    }
-    get(resource) {
-      var _c;
-      return (_c = this.map.get(this.toKey(resource))) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    has(resource) {
-      return this.map.has(this.toKey(resource));
-    }
-    get size() {
-      return this.map.size;
-    }
-    clear() {
-      this.map.clear();
-    }
-    delete(resource) {
-      return this.map.delete(this.toKey(resource));
-    }
-    forEach(clb, thisArg) {
-      if (typeof thisArg !== "undefined") {
-        clb = clb.bind(thisArg);
-      }
-      for (const [_, entry] of this.map) {
-        clb(entry.value, entry.uri, this);
-      }
-    }
-    *values() {
-      for (const entry of this.map.values()) {
-        yield entry.value;
-      }
-    }
-    *keys() {
-      for (const entry of this.map.values()) {
-        yield entry.uri;
-      }
-    }
-    *entries() {
-      for (const entry of this.map.values()) {
-        yield [entry.uri, entry.value];
-      }
-    }
-    *[(_a3 = Symbol.toStringTag, Symbol.iterator)]() {
-      for (const [, entry] of this.map) {
-        yield [entry.uri, entry.value];
-      }
-    }
-  };
-  ResourceMap.defaultToKey = (resource) => resource.toString();
-  var LinkedMap = class {
-    constructor() {
-      this[_b2] = "LinkedMap";
-      this._map = /* @__PURE__ */ new Map();
-      this._head = void 0;
-      this._tail = void 0;
-      this._size = 0;
-      this._state = 0;
-    }
-    clear() {
-      this._map.clear();
-      this._head = void 0;
-      this._tail = void 0;
-      this._size = 0;
-      this._state++;
-    }
-    isEmpty() {
-      return !this._head && !this._tail;
-    }
-    get size() {
-      return this._size;
-    }
-    get first() {
-      var _c;
-      return (_c = this._head) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    get last() {
-      var _c;
-      return (_c = this._tail) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    has(key) {
-      return this._map.has(key);
-    }
-    get(key, touch = 0) {
-      const item = this._map.get(key);
-      if (!item) {
-        return void 0;
-      }
-      if (touch !== 0) {
-        this.touch(item, touch);
-      }
-      return item.value;
-    }
-    set(key, value, touch = 0) {
-      let item = this._map.get(key);
-      if (item) {
-        item.value = value;
-        if (touch !== 0) {
-          this.touch(item, touch);
-        }
-      } else {
-        item = { key, value, next: void 0, previous: void 0 };
-        switch (touch) {
-          case 0:
-            this.addItemLast(item);
-            break;
-          case 1:
-            this.addItemFirst(item);
-            break;
-          case 2:
-            this.addItemLast(item);
-            break;
-          default:
-            this.addItemLast(item);
-            break;
-        }
-        this._map.set(key, item);
-        this._size++;
-      }
-      return this;
-    }
-    delete(key) {
-      return !!this.remove(key);
-    }
-    remove(key) {
-      const item = this._map.get(key);
-      if (!item) {
-        return void 0;
-      }
-      this._map.delete(key);
-      this.removeItem(item);
-      this._size--;
-      return item.value;
-    }
-    shift() {
-      if (!this._head && !this._tail) {
-        return void 0;
-      }
-      if (!this._head || !this._tail) {
-        throw new Error("Invalid list");
-      }
-      const item = this._head;
-      this._map.delete(item.key);
-      this.removeItem(item);
-      this._size--;
-      return item.value;
-    }
-    forEach(callbackfn, thisArg) {
-      const state = this._state;
-      let current = this._head;
-      while (current) {
-        if (thisArg) {
-          callbackfn.bind(thisArg)(current.value, current.key, this);
-        } else {
-          callbackfn(current.value, current.key, this);
-        }
-        if (this._state !== state) {
-          throw new Error(`LinkedMap got modified during iteration.`);
-        }
-        current = current.next;
-      }
-    }
-    keys() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: current.key, done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    values() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: current.value, done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    entries() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: [current.key, current.value], done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    [(_b2 = Symbol.toStringTag, Symbol.iterator)]() {
-      return this.entries();
-    }
-    trimOld(newSize) {
-      if (newSize >= this.size) {
-        return;
-      }
-      if (newSize === 0) {
-        this.clear();
-        return;
-      }
-      let current = this._head;
-      let currentSize = this.size;
-      while (current && currentSize > newSize) {
-        this._map.delete(current.key);
-        current = current.next;
-        currentSize--;
-      }
-      this._head = current;
-      this._size = currentSize;
-      if (current) {
-        current.previous = void 0;
-      }
-      this._state++;
-    }
-    addItemFirst(item) {
-      if (!this._head && !this._tail) {
-        this._tail = item;
-      } else if (!this._head) {
-        throw new Error("Invalid list");
-      } else {
-        item.next = this._head;
-        this._head.previous = item;
-      }
-      this._head = item;
-      this._state++;
-    }
-    addItemLast(item) {
-      if (!this._head && !this._tail) {
-        this._head = item;
-      } else if (!this._tail) {
-        throw new Error("Invalid list");
-      } else {
-        item.previous = this._tail;
-        this._tail.next = item;
-      }
-      this._tail = item;
-      this._state++;
-    }
-    removeItem(item) {
-      if (item === this._head && item === this._tail) {
-        this._head = void 0;
-        this._tail = void 0;
-      } else if (item === this._head) {
-        if (!item.next) {
-          throw new Error("Invalid list");
-        }
-        item.next.previous = void 0;
-        this._head = item.next;
-      } else if (item === this._tail) {
-        if (!item.previous) {
-          throw new Error("Invalid list");
-        }
-        item.previous.next = void 0;
-        this._tail = item.previous;
-      } else {
-        const next = item.next;
-        const previous = item.previous;
-        if (!next || !previous) {
-          throw new Error("Invalid list");
-        }
-        next.previous = previous;
-        previous.next = next;
-      }
-      item.next = void 0;
-      item.previous = void 0;
-      this._state++;
-    }
-    touch(item, touch) {
-      if (!this._head || !this._tail) {
-        throw new Error("Invalid list");
-      }
-      if (touch !== 1 && touch !== 2) {
-        return;
-      }
-      if (touch === 1) {
-        if (item === this._head) {
-          return;
-        }
-        const next = item.next;
-        const previous = item.previous;
-        if (item === this._tail) {
-          previous.next = void 0;
-          this._tail = previous;
-        } else {
-          next.previous = previous;
-          previous.next = next;
-        }
-        item.previous = void 0;
-        item.next = this._head;
-        this._head.previous = item;
-        this._head = item;
-        this._state++;
-      } else if (touch === 2) {
-        if (item === this._tail) {
-          return;
-        }
-        const next = item.next;
-        const previous = item.previous;
-        if (item === this._head) {
-          next.previous = void 0;
-          this._head = next;
-        } else {
-          next.previous = previous;
-          previous.next = next;
-        }
-        item.next = void 0;
-        item.previous = this._tail;
-        this._tail.next = item;
-        this._tail = item;
-        this._state++;
-      }
-    }
-    toJSON() {
-      const data = [];
-      this.forEach((value, key) => {
-        data.push([key, value]);
-      });
-      return data;
-    }
-    fromJSON(data) {
-      this.clear();
-      for (const [key, value] of data) {
-        this.set(key, value);
-      }
-    }
-  };
-  var LRUCache = class extends LinkedMap {
-    constructor(limit, ratio = 1) {
-      super();
-      this._limit = limit;
-      this._ratio = Math.min(Math.max(0, ratio), 1);
-    }
-    get limit() {
-      return this._limit;
-    }
-    set limit(limit) {
-      this._limit = limit;
-      this.checkTrim();
-    }
-    get(key, touch = 2) {
-      return super.get(key, touch);
-    }
-    peek(key) {
-      return super.get(
-        key,
-        0
-        /* Touch.None */
-      );
-    }
-    set(key, value) {
-      super.set(
-        key,
-        value,
-        2
-        /* Touch.AsNew */
-      );
-      this.checkTrim();
-      return this;
-    }
-    checkTrim() {
-      if (this.size > this._limit) {
-        this.trimOld(Math.round(this._limit * this._ratio));
-      }
-    }
-  };
-  var SetMap = class {
-    constructor() {
-      this.map = /* @__PURE__ */ new Map();
-    }
-    add(key, value) {
-      let values = this.map.get(key);
-      if (!values) {
-        values = /* @__PURE__ */ new Set();
-        this.map.set(key, values);
-      }
-      values.add(value);
-    }
-    delete(key, value) {
-      const values = this.map.get(key);
-      if (!values) {
-        return;
-      }
-      values.delete(value);
-      if (values.size === 0) {
-        this.map.delete(key);
-      }
-    }
-    forEach(key, fn) {
-      const values = this.map.get(key);
-      if (!values) {
-        return;
-      }
-      values.forEach(fn);
-    }
-    get(key) {
-      const values = this.map.get(key);
-      if (!values) {
-        return /* @__PURE__ */ new Set();
-      }
-      return values;
-    }
-  };
-
   // node_modules/monaco-editor/esm/vs/editor/common/core/wordCharacterClassifier.js
-  var wordClassifierCache = new LRUCache(10);
+  var WordCharacterClassifier = class extends CharacterClassifier {
+    constructor(wordSeparators) {
+      super(
+        0
+        /* WordCharacterClass.Regular */
+      );
+      for (let i = 0, len = wordSeparators.length; i < len; i++) {
+        this.set(
+          wordSeparators.charCodeAt(i),
+          2
+          /* WordCharacterClass.WordSeparator */
+        );
+      }
+      this.set(
+        32,
+        1
+        /* WordCharacterClass.Whitespace */
+      );
+      this.set(
+        9,
+        1
+        /* WordCharacterClass.Whitespace */
+      );
+    }
+  };
+  function once(computeFn) {
+    const cache = {};
+    return (input) => {
+      if (!cache.hasOwnProperty(input)) {
+        cache[input] = computeFn(input);
+      }
+      return cache[input];
+    };
+  }
+  var getMapForWordSeparators = once((input) => new WordCharacterClassifier(input));
 
   // node_modules/monaco-editor/esm/vs/editor/common/model.js
   var OverviewRulerLane2;
@@ -8925,9 +8450,13 @@
   var GlyphMarginLane2;
   (function(GlyphMarginLane3) {
     GlyphMarginLane3[GlyphMarginLane3["Left"] = 1] = "Left";
-    GlyphMarginLane3[GlyphMarginLane3["Center"] = 2] = "Center";
-    GlyphMarginLane3[GlyphMarginLane3["Right"] = 3] = "Right";
+    GlyphMarginLane3[GlyphMarginLane3["Right"] = 2] = "Right";
   })(GlyphMarginLane2 || (GlyphMarginLane2 = {}));
+  var MinimapPosition2;
+  (function(MinimapPosition3) {
+    MinimapPosition3[MinimapPosition3["Inline"] = 1] = "Inline";
+    MinimapPosition3[MinimapPosition3["Gutter"] = 2] = "Gutter";
+  })(MinimapPosition2 || (MinimapPosition2 = {}));
   var InjectedTextCursorStops2;
   (function(InjectedTextCursorStops3) {
     InjectedTextCursorStops3[InjectedTextCursorStops3["Both"] = 0] = "Both";
@@ -9296,6 +8825,12 @@
     toString() {
       return `[${this.start}, ${this.endExclusive})`;
     }
+    equals(other) {
+      return this.start === other.start && this.endExclusive === other.endExclusive;
+    }
+    containsRange(other) {
+      return this.start <= other.start && other.endExclusive <= this.endExclusive;
+    }
     contains(offset) {
       return this.start <= offset && offset < this.endExclusive;
     }
@@ -9320,11 +8855,6 @@
       }
       return void 0;
     }
-    intersects(other) {
-      const start = Math.max(this.start, other.start);
-      const end = Math.min(this.endExclusive, other.endExclusive);
-      return start < end;
-    }
     isBefore(other) {
       return this.endExclusive <= other.start;
     }
@@ -9333,9 +8863,6 @@
     }
     slice(arr) {
       return arr.slice(this.start, this.endExclusive);
-    }
-    substring(str) {
-      return str.substring(this.start, this.endExclusive);
     }
     /**
      * Returns the given value if it is contained in this instance, otherwise the closest value that is contained.
@@ -9436,6 +8963,9 @@
 
   // node_modules/monaco-editor/esm/vs/editor/common/core/lineRange.js
   var LineRange = class _LineRange {
+    static fromRange(range) {
+      return new _LineRange(range.startLineNumber, range.endLineNumber);
+    }
     static fromRangeInclusive(range) {
       return new _LineRange(range.startLineNumber, range.endLineNumber + 1);
     }
@@ -9451,18 +8981,6 @@
         result = result.getUnion(new LineRangeSet(lineRanges[i].slice()));
       }
       return result.ranges;
-    }
-    static join(lineRanges) {
-      if (lineRanges.length === 0) {
-        throw new BugIndicatingError("lineRanges cannot be empty");
-      }
-      let startLineNumber = lineRanges[0].startLineNumber;
-      let endLineNumberExclusive = lineRanges[0].endLineNumberExclusive;
-      for (let i = 1; i < lineRanges.length; i++) {
-        startLineNumber = Math.min(startLineNumber, lineRanges[i].startLineNumber);
-        endLineNumberExclusive = Math.max(endLineNumberExclusive, lineRanges[i].endLineNumberExclusive);
-      }
-      return new _LineRange(startLineNumber, endLineNumberExclusive);
     }
     static ofLength(startLineNumber, length) {
       return new _LineRange(startLineNumber, startLineNumber + length);
@@ -9709,27 +9227,16 @@
       let lastOriginalEndLineNumber = 1;
       let lastModifiedEndLineNumber = 1;
       for (const m of mapping) {
-        const r2 = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, m.original.startLineNumber), new LineRange(lastModifiedEndLineNumber, m.modified.startLineNumber));
+        const r2 = new DetailedLineRangeMapping(new LineRange(lastOriginalEndLineNumber, m.original.startLineNumber), new LineRange(lastModifiedEndLineNumber, m.modified.startLineNumber), void 0);
         if (!r2.modified.isEmpty) {
           result.push(r2);
         }
         lastOriginalEndLineNumber = m.original.endLineNumberExclusive;
         lastModifiedEndLineNumber = m.modified.endLineNumberExclusive;
       }
-      const r = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, originalLineCount + 1), new LineRange(lastModifiedEndLineNumber, modifiedLineCount + 1));
+      const r = new DetailedLineRangeMapping(new LineRange(lastOriginalEndLineNumber, originalLineCount + 1), new LineRange(lastModifiedEndLineNumber, modifiedLineCount + 1), void 0);
       if (!r.modified.isEmpty) {
         result.push(r);
-      }
-      return result;
-    }
-    static clip(mapping, originalRange, modifiedRange) {
-      const result = [];
-      for (const m of mapping) {
-        const original = m.original.intersect(originalRange);
-        const modified = m.modified.intersect(modifiedRange);
-        if (original && !original.isEmpty && modified && !modified.isEmpty) {
-          result.push(new _LineRangeMapping(original, modified));
-        }
       }
       return result;
     }
@@ -9748,11 +9255,6 @@
     }
   };
   var DetailedLineRangeMapping = class _DetailedLineRangeMapping extends LineRangeMapping {
-    static fromRangeMappings(rangeMappings) {
-      const originalRange = LineRange.join(rangeMappings.map((r) => LineRange.fromRangeInclusive(r.originalRange)));
-      const modifiedRange = LineRange.join(rangeMappings.map((r) => LineRange.fromRangeInclusive(r.modifiedRange)));
-      return new _DetailedLineRangeMapping(originalRange, modifiedRange, rangeMappings);
-    }
     constructor(originalRange, modifiedRange, innerChanges) {
       super(originalRange, modifiedRange);
       this.innerChanges = innerChanges;
@@ -9760,11 +9262,6 @@
     flip() {
       var _a4;
       return new _DetailedLineRangeMapping(this.modified, this.original, (_a4 = this.innerChanges) === null || _a4 === void 0 ? void 0 : _a4.map((c) => c.flip()));
-    }
-    withInnerChangesFromLineRanges() {
-      return new _DetailedLineRangeMapping(this.original, this.modified, [
-        new RangeMapping(this.original.toExclusiveRange(), this.modified.toExclusiveRange())
-      ]);
     }
   };
   var RangeMapping = class _RangeMapping {
@@ -10270,22 +9767,13 @@
       return new OffsetPair(this.seq1Range.endExclusive, this.seq2Range.endExclusive);
     }
   };
-  var OffsetPair = class _OffsetPair {
+  var OffsetPair = class {
     constructor(offset1, offset2) {
       this.offset1 = offset1;
       this.offset2 = offset2;
     }
     toString() {
       return `${this.offset1} <-> ${this.offset2}`;
-    }
-    delta(offset) {
-      if (offset === 0) {
-        return this;
-      }
-      return new _OffsetPair(this.offset1 + offset, this.offset2 + offset);
-    }
-    equals(other) {
-      return this.offset1 === other.offset1 && this.offset2 === other.offset2;
     }
   };
   OffsetPair.zero = new OffsetPair(0, 0);
@@ -10364,11 +9852,11 @@
       this.totalCount = counter;
     }
     computeSimilarity(other) {
-      var _a4, _b3;
+      var _a4, _b2;
       let sumDifferences = 0;
       const maxLength = Math.max(this.histogram.length, other.histogram.length);
       for (let i = 0; i < maxLength; i++) {
-        sumDifferences += Math.abs(((_a4 = this.histogram[i]) !== null && _a4 !== void 0 ? _a4 : 0) - ((_b3 = other.histogram[i]) !== null && _b3 !== void 0 ? _b3 : 0));
+        sumDifferences += Math.abs(((_a4 = this.histogram[i]) !== null && _a4 !== void 0 ? _a4 : 0) - ((_b2 = other.histogram[i]) !== null && _b2 !== void 0 ? _b2 : 0));
       }
       return 1 - sumDifferences / (this.totalCount + other.totalCount);
     }
@@ -10584,6 +10072,441 @@
     }
   };
 
+  // node_modules/monaco-editor/esm/vs/base/common/map.js
+  var _a3;
+  var _b;
+  var ResourceMapEntry = class {
+    constructor(uri, value) {
+      this.uri = uri;
+      this.value = value;
+    }
+  };
+  function isEntries(arg) {
+    return Array.isArray(arg);
+  }
+  var ResourceMap = class _ResourceMap {
+    constructor(arg, toKey) {
+      this[_a3] = "ResourceMap";
+      if (arg instanceof _ResourceMap) {
+        this.map = new Map(arg.map);
+        this.toKey = toKey !== null && toKey !== void 0 ? toKey : _ResourceMap.defaultToKey;
+      } else if (isEntries(arg)) {
+        this.map = /* @__PURE__ */ new Map();
+        this.toKey = toKey !== null && toKey !== void 0 ? toKey : _ResourceMap.defaultToKey;
+        for (const [resource, value] of arg) {
+          this.set(resource, value);
+        }
+      } else {
+        this.map = /* @__PURE__ */ new Map();
+        this.toKey = arg !== null && arg !== void 0 ? arg : _ResourceMap.defaultToKey;
+      }
+    }
+    set(resource, value) {
+      this.map.set(this.toKey(resource), new ResourceMapEntry(resource, value));
+      return this;
+    }
+    get(resource) {
+      var _c;
+      return (_c = this.map.get(this.toKey(resource))) === null || _c === void 0 ? void 0 : _c.value;
+    }
+    has(resource) {
+      return this.map.has(this.toKey(resource));
+    }
+    get size() {
+      return this.map.size;
+    }
+    clear() {
+      this.map.clear();
+    }
+    delete(resource) {
+      return this.map.delete(this.toKey(resource));
+    }
+    forEach(clb, thisArg) {
+      if (typeof thisArg !== "undefined") {
+        clb = clb.bind(thisArg);
+      }
+      for (const [_, entry] of this.map) {
+        clb(entry.value, entry.uri, this);
+      }
+    }
+    *values() {
+      for (const entry of this.map.values()) {
+        yield entry.value;
+      }
+    }
+    *keys() {
+      for (const entry of this.map.values()) {
+        yield entry.uri;
+      }
+    }
+    *entries() {
+      for (const entry of this.map.values()) {
+        yield [entry.uri, entry.value];
+      }
+    }
+    *[(_a3 = Symbol.toStringTag, Symbol.iterator)]() {
+      for (const [, entry] of this.map) {
+        yield [entry.uri, entry.value];
+      }
+    }
+  };
+  ResourceMap.defaultToKey = (resource) => resource.toString();
+  var LinkedMap = class {
+    constructor() {
+      this[_b] = "LinkedMap";
+      this._map = /* @__PURE__ */ new Map();
+      this._head = void 0;
+      this._tail = void 0;
+      this._size = 0;
+      this._state = 0;
+    }
+    clear() {
+      this._map.clear();
+      this._head = void 0;
+      this._tail = void 0;
+      this._size = 0;
+      this._state++;
+    }
+    isEmpty() {
+      return !this._head && !this._tail;
+    }
+    get size() {
+      return this._size;
+    }
+    get first() {
+      var _c;
+      return (_c = this._head) === null || _c === void 0 ? void 0 : _c.value;
+    }
+    get last() {
+      var _c;
+      return (_c = this._tail) === null || _c === void 0 ? void 0 : _c.value;
+    }
+    has(key) {
+      return this._map.has(key);
+    }
+    get(key, touch = 0) {
+      const item = this._map.get(key);
+      if (!item) {
+        return void 0;
+      }
+      if (touch !== 0) {
+        this.touch(item, touch);
+      }
+      return item.value;
+    }
+    set(key, value, touch = 0) {
+      let item = this._map.get(key);
+      if (item) {
+        item.value = value;
+        if (touch !== 0) {
+          this.touch(item, touch);
+        }
+      } else {
+        item = { key, value, next: void 0, previous: void 0 };
+        switch (touch) {
+          case 0:
+            this.addItemLast(item);
+            break;
+          case 1:
+            this.addItemFirst(item);
+            break;
+          case 2:
+            this.addItemLast(item);
+            break;
+          default:
+            this.addItemLast(item);
+            break;
+        }
+        this._map.set(key, item);
+        this._size++;
+      }
+      return this;
+    }
+    delete(key) {
+      return !!this.remove(key);
+    }
+    remove(key) {
+      const item = this._map.get(key);
+      if (!item) {
+        return void 0;
+      }
+      this._map.delete(key);
+      this.removeItem(item);
+      this._size--;
+      return item.value;
+    }
+    shift() {
+      if (!this._head && !this._tail) {
+        return void 0;
+      }
+      if (!this._head || !this._tail) {
+        throw new Error("Invalid list");
+      }
+      const item = this._head;
+      this._map.delete(item.key);
+      this.removeItem(item);
+      this._size--;
+      return item.value;
+    }
+    forEach(callbackfn, thisArg) {
+      const state = this._state;
+      let current = this._head;
+      while (current) {
+        if (thisArg) {
+          callbackfn.bind(thisArg)(current.value, current.key, this);
+        } else {
+          callbackfn(current.value, current.key, this);
+        }
+        if (this._state !== state) {
+          throw new Error(`LinkedMap got modified during iteration.`);
+        }
+        current = current.next;
+      }
+    }
+    keys() {
+      const map = this;
+      const state = this._state;
+      let current = this._head;
+      const iterator = {
+        [Symbol.iterator]() {
+          return iterator;
+        },
+        next() {
+          if (map._state !== state) {
+            throw new Error(`LinkedMap got modified during iteration.`);
+          }
+          if (current) {
+            const result = { value: current.key, done: false };
+            current = current.next;
+            return result;
+          } else {
+            return { value: void 0, done: true };
+          }
+        }
+      };
+      return iterator;
+    }
+    values() {
+      const map = this;
+      const state = this._state;
+      let current = this._head;
+      const iterator = {
+        [Symbol.iterator]() {
+          return iterator;
+        },
+        next() {
+          if (map._state !== state) {
+            throw new Error(`LinkedMap got modified during iteration.`);
+          }
+          if (current) {
+            const result = { value: current.value, done: false };
+            current = current.next;
+            return result;
+          } else {
+            return { value: void 0, done: true };
+          }
+        }
+      };
+      return iterator;
+    }
+    entries() {
+      const map = this;
+      const state = this._state;
+      let current = this._head;
+      const iterator = {
+        [Symbol.iterator]() {
+          return iterator;
+        },
+        next() {
+          if (map._state !== state) {
+            throw new Error(`LinkedMap got modified during iteration.`);
+          }
+          if (current) {
+            const result = { value: [current.key, current.value], done: false };
+            current = current.next;
+            return result;
+          } else {
+            return { value: void 0, done: true };
+          }
+        }
+      };
+      return iterator;
+    }
+    [(_b = Symbol.toStringTag, Symbol.iterator)]() {
+      return this.entries();
+    }
+    trimOld(newSize) {
+      if (newSize >= this.size) {
+        return;
+      }
+      if (newSize === 0) {
+        this.clear();
+        return;
+      }
+      let current = this._head;
+      let currentSize = this.size;
+      while (current && currentSize > newSize) {
+        this._map.delete(current.key);
+        current = current.next;
+        currentSize--;
+      }
+      this._head = current;
+      this._size = currentSize;
+      if (current) {
+        current.previous = void 0;
+      }
+      this._state++;
+    }
+    addItemFirst(item) {
+      if (!this._head && !this._tail) {
+        this._tail = item;
+      } else if (!this._head) {
+        throw new Error("Invalid list");
+      } else {
+        item.next = this._head;
+        this._head.previous = item;
+      }
+      this._head = item;
+      this._state++;
+    }
+    addItemLast(item) {
+      if (!this._head && !this._tail) {
+        this._head = item;
+      } else if (!this._tail) {
+        throw new Error("Invalid list");
+      } else {
+        item.previous = this._tail;
+        this._tail.next = item;
+      }
+      this._tail = item;
+      this._state++;
+    }
+    removeItem(item) {
+      if (item === this._head && item === this._tail) {
+        this._head = void 0;
+        this._tail = void 0;
+      } else if (item === this._head) {
+        if (!item.next) {
+          throw new Error("Invalid list");
+        }
+        item.next.previous = void 0;
+        this._head = item.next;
+      } else if (item === this._tail) {
+        if (!item.previous) {
+          throw new Error("Invalid list");
+        }
+        item.previous.next = void 0;
+        this._tail = item.previous;
+      } else {
+        const next = item.next;
+        const previous = item.previous;
+        if (!next || !previous) {
+          throw new Error("Invalid list");
+        }
+        next.previous = previous;
+        previous.next = next;
+      }
+      item.next = void 0;
+      item.previous = void 0;
+      this._state++;
+    }
+    touch(item, touch) {
+      if (!this._head || !this._tail) {
+        throw new Error("Invalid list");
+      }
+      if (touch !== 1 && touch !== 2) {
+        return;
+      }
+      if (touch === 1) {
+        if (item === this._head) {
+          return;
+        }
+        const next = item.next;
+        const previous = item.previous;
+        if (item === this._tail) {
+          previous.next = void 0;
+          this._tail = previous;
+        } else {
+          next.previous = previous;
+          previous.next = next;
+        }
+        item.previous = void 0;
+        item.next = this._head;
+        this._head.previous = item;
+        this._head = item;
+        this._state++;
+      } else if (touch === 2) {
+        if (item === this._tail) {
+          return;
+        }
+        const next = item.next;
+        const previous = item.previous;
+        if (item === this._head) {
+          next.previous = void 0;
+          this._head = next;
+        } else {
+          next.previous = previous;
+          previous.next = next;
+        }
+        item.next = void 0;
+        item.previous = this._tail;
+        this._tail.next = item;
+        this._tail = item;
+        this._state++;
+      }
+    }
+    toJSON() {
+      const data = [];
+      this.forEach((value, key) => {
+        data.push([key, value]);
+      });
+      return data;
+    }
+    fromJSON(data) {
+      this.clear();
+      for (const [key, value] of data) {
+        this.set(key, value);
+      }
+    }
+  };
+  var SetMap = class {
+    constructor() {
+      this.map = /* @__PURE__ */ new Map();
+    }
+    add(key, value) {
+      let values = this.map.get(key);
+      if (!values) {
+        values = /* @__PURE__ */ new Set();
+        this.map.set(key, values);
+      }
+      values.add(value);
+    }
+    delete(key, value) {
+      const values = this.map.get(key);
+      if (!values) {
+        return;
+      }
+      values.delete(value);
+      if (values.size === 0) {
+        this.map.delete(key);
+      }
+    }
+    forEach(key, fn) {
+      const values = this.map.get(key);
+      if (!values) {
+        return;
+      }
+      values.forEach(fn);
+    }
+    get(key) {
+      const values = this.map.get(key);
+      if (!values) {
+        return /* @__PURE__ */ new Set();
+      }
+      return values;
+    }
+  };
+
   // node_modules/monaco-editor/esm/vs/editor/common/diff/defaultLinesDiffComputer/linesSliceCharSequence.js
   var LinesSliceCharSequence = class {
     constructor(lines, lineRange, considerWhitespaceChanges) {
@@ -10643,9 +10566,6 @@
       if (prevCategory === 7 && nextCategory === 8) {
         return 0;
       }
-      if (prevCategory === 8) {
-        return 150;
-      }
       let score2 = 0;
       if (prevCategory !== nextCategory) {
         score2 += 10;
@@ -10694,9 +10614,9 @@
       return this.elements[offset1] === this.elements[offset2];
     }
     extendToFullLines(range) {
-      var _a4, _b3;
+      var _a4, _b2;
       const start = (_a4 = findLastMonotonous(this.firstCharOffsetByLine, (x) => x <= range.start)) !== null && _a4 !== void 0 ? _a4 : 0;
-      const end = (_b3 = findFirstMonotonous(this.firstCharOffsetByLine, (x) => range.endExclusive <= x)) !== null && _b3 !== void 0 ? _b3 : this.elements.length;
+      const end = (_b2 = findFirstMonotonous(this.firstCharOffsetByLine, (x) => range.endExclusive <= x)) !== null && _b2 !== void 0 ? _b2 : this.elements.length;
       return new OffsetRange(start, end);
     }
   };
@@ -10727,7 +10647,7 @@
     [
       5
       /* CharBoundaryCategory.Separator */
-    ]: 30,
+    ]: 3,
     [
       6
       /* CharBoundaryCategory.Space */
@@ -11061,8 +10981,8 @@
       const prevDiff = i > 0 ? sequenceDiffs[i - 1] : void 0;
       const diff = sequenceDiffs[i];
       const nextDiff = i + 1 < sequenceDiffs.length ? sequenceDiffs[i + 1] : void 0;
-      const seq1ValidRange = new OffsetRange(prevDiff ? prevDiff.seq1Range.endExclusive + 1 : 0, nextDiff ? nextDiff.seq1Range.start - 1 : sequence1.length);
-      const seq2ValidRange = new OffsetRange(prevDiff ? prevDiff.seq2Range.endExclusive + 1 : 0, nextDiff ? nextDiff.seq2Range.start - 1 : sequence2.length);
+      const seq1ValidRange = new OffsetRange(prevDiff ? prevDiff.seq1Range.start + 1 : 0, nextDiff ? nextDiff.seq1Range.endExclusive - 1 : sequence1.length);
+      const seq2ValidRange = new OffsetRange(prevDiff ? prevDiff.seq2Range.start + 1 : 0, nextDiff ? nextDiff.seq2Range.endExclusive - 1 : sequence2.length);
       if (diff.seq1Range.isEmpty) {
         sequenceDiffs[i] = shiftDiffToBetterPosition(diff, sequence1, sequence2, seq1ValidRange, seq2ValidRange);
       } else if (diff.seq2Range.isEmpty) {
@@ -11116,54 +11036,59 @@
     return result;
   }
   function extendDiffsToEntireWordIfAppropriate(sequence1, sequence2, sequenceDiffs) {
-    const equalMappings = SequenceDiff.invert(sequenceDiffs, sequence1.length);
     const additional = [];
-    let lastPoint = new OffsetPair(0, 0);
-    function scanWord(pair, equalMapping) {
-      if (pair.offset1 < lastPoint.offset1 || pair.offset2 < lastPoint.offset2) {
+    let lastModifiedWord = void 0;
+    function maybePushWordToAdditional() {
+      if (!lastModifiedWord) {
         return;
       }
-      const w1 = sequence1.findWordContaining(pair.offset1);
-      const w2 = sequence2.findWordContaining(pair.offset2);
-      if (!w1 || !w2) {
-        return;
+      const originalLength1 = lastModifiedWord.s1Range.length - lastModifiedWord.deleted;
+      const originalLength2 = lastModifiedWord.s2Range.length - lastModifiedWord.added;
+      if (originalLength1 !== originalLength2) {
       }
-      let w = new SequenceDiff(w1, w2);
-      const equalPart = w.intersect(equalMapping);
-      let equalChars1 = equalPart.seq1Range.length;
-      let equalChars2 = equalPart.seq2Range.length;
-      while (equalMappings.length > 0) {
-        const next = equalMappings[0];
-        const intersects = next.seq1Range.intersects(w.seq1Range) || next.seq2Range.intersects(w.seq2Range);
-        if (!intersects) {
-          break;
-        }
-        const v1 = sequence1.findWordContaining(next.seq1Range.start);
-        const v2 = sequence2.findWordContaining(next.seq2Range.start);
-        const v = new SequenceDiff(v1, v2);
-        const equalPart2 = v.intersect(next);
-        equalChars1 += equalPart2.seq1Range.length;
-        equalChars2 += equalPart2.seq2Range.length;
-        w = w.join(v);
-        if (w.seq1Range.endExclusive >= next.seq1Range.endExclusive) {
-          equalMappings.shift();
-        } else {
-          break;
-        }
+      if (Math.max(lastModifiedWord.deleted, lastModifiedWord.added) + (lastModifiedWord.count - 1) > originalLength1) {
+        additional.push(new SequenceDiff(lastModifiedWord.s1Range, lastModifiedWord.s2Range));
       }
-      if (equalChars1 + equalChars2 < (w.seq1Range.length + w.seq2Range.length) * 2 / 3) {
-        additional.push(w);
-      }
-      lastPoint = w.getEndExclusives();
+      lastModifiedWord = void 0;
     }
-    while (equalMappings.length > 0) {
-      const next = equalMappings.shift();
-      if (next.seq1Range.isEmpty) {
-        continue;
+    for (const s of sequenceDiffs) {
+      let processWord = function(s1Range, s2Range) {
+        var _a4, _b2, _c, _d;
+        if (!lastModifiedWord || !lastModifiedWord.s1Range.containsRange(s1Range) || !lastModifiedWord.s2Range.containsRange(s2Range)) {
+          if (lastModifiedWord && !(lastModifiedWord.s1Range.endExclusive < s1Range.start && lastModifiedWord.s2Range.endExclusive < s2Range.start)) {
+            const s1Added = OffsetRange.tryCreate(lastModifiedWord.s1Range.endExclusive, s1Range.start);
+            const s2Added = OffsetRange.tryCreate(lastModifiedWord.s2Range.endExclusive, s2Range.start);
+            lastModifiedWord.deleted += (_a4 = s1Added === null || s1Added === void 0 ? void 0 : s1Added.length) !== null && _a4 !== void 0 ? _a4 : 0;
+            lastModifiedWord.added += (_b2 = s2Added === null || s2Added === void 0 ? void 0 : s2Added.length) !== null && _b2 !== void 0 ? _b2 : 0;
+            lastModifiedWord.s1Range = lastModifiedWord.s1Range.join(s1Range);
+            lastModifiedWord.s2Range = lastModifiedWord.s2Range.join(s2Range);
+          } else {
+            maybePushWordToAdditional();
+            lastModifiedWord = { added: 0, deleted: 0, count: 0, s1Range, s2Range };
+          }
+        }
+        const changedS1 = s1Range.intersect(s.seq1Range);
+        const changedS2 = s2Range.intersect(s.seq2Range);
+        lastModifiedWord.count++;
+        lastModifiedWord.deleted += (_c = changedS1 === null || changedS1 === void 0 ? void 0 : changedS1.length) !== null && _c !== void 0 ? _c : 0;
+        lastModifiedWord.added += (_d = changedS2 === null || changedS2 === void 0 ? void 0 : changedS2.length) !== null && _d !== void 0 ? _d : 0;
+      };
+      const w1Before = sequence1.findWordContaining(s.seq1Range.start - 1);
+      const w2Before = sequence2.findWordContaining(s.seq2Range.start - 1);
+      const w1After = sequence1.findWordContaining(s.seq1Range.endExclusive);
+      const w2After = sequence2.findWordContaining(s.seq2Range.endExclusive);
+      if (w1Before && w1After && w2Before && w2After && w1Before.equals(w1After) && w2Before.equals(w2After)) {
+        processWord(w1Before, w2Before);
+      } else {
+        if (w1Before && w2Before) {
+          processWord(w1Before, w2Before);
+        }
+        if (w1After && w2After) {
+          processWord(w1After, w2After);
+        }
       }
-      scanWord(next.getStarts(), next);
-      scanWord(next.getEndExclusives().delta(-1), next);
     }
+    maybePushWordToAdditional();
     const merged = mergeSequenceDiffs(sequenceDiffs, additional);
     return merged;
   }
@@ -11291,11 +11216,7 @@
       }
       const availableSpace = SequenceDiff.fromOffsetPairs(prev ? prev.getEndExclusives() : OffsetPair.zero, next ? next.getStarts() : OffsetPair.max);
       const result = newDiff.intersect(availableSpace);
-      if (newDiffs.length > 0 && result.getStarts().equals(newDiffs[newDiffs.length - 1].getEndExclusives())) {
-        newDiffs[newDiffs.length - 1] = newDiffs[newDiffs.length - 1].join(result);
-      } else {
-        newDiffs.push(result);
-      }
+      newDiffs.push(result);
     });
     return newDiffs;
   }
@@ -11486,11 +11407,8 @@
       changes.push(new DetailedLineRangeMapping(first.original.join(last.original), first.modified.join(last.modified), g.map((a) => a.innerChanges[0])));
     }
     assertFn(() => {
-      if (!dontAssertStartLine && changes.length > 0) {
-        if (changes[0].modified.startLineNumber !== changes[0].original.startLineNumber) {
-          return false;
-        }
-        if (modifiedLines.length - changes[changes.length - 1].modified.endLineNumberExclusive !== originalLines.length - changes[changes.length - 1].original.endLineNumberExclusive) {
+      if (!dontAssertStartLine) {
+        if (changes.length > 0 && changes[0].original.startLineNumber !== changes[0].modified.startLineNumber) {
           return false;
         }
       }
@@ -12084,79 +12002,6 @@
     return computeColors(model);
   }
 
-  // node_modules/monaco-editor/esm/vs/editor/common/services/findSectionHeaders.js
-  var markRegex = /\bMARK:\s*(.*)$/d;
-  var trimDashesRegex = /^-+|-+$/g;
-  function findSectionHeaders(model, options) {
-    var _a4;
-    let headers = [];
-    if (options.findRegionSectionHeaders && ((_a4 = options.foldingRules) === null || _a4 === void 0 ? void 0 : _a4.markers)) {
-      const regionHeaders = collectRegionHeaders(model, options);
-      headers = headers.concat(regionHeaders);
-    }
-    if (options.findMarkSectionHeaders) {
-      const markHeaders = collectMarkHeaders(model);
-      headers = headers.concat(markHeaders);
-    }
-    return headers;
-  }
-  function collectRegionHeaders(model, options) {
-    const regionHeaders = [];
-    const endLineNumber = model.getLineCount();
-    for (let lineNumber = 1; lineNumber <= endLineNumber; lineNumber++) {
-      const lineContent = model.getLineContent(lineNumber);
-      const match = lineContent.match(options.foldingRules.markers.start);
-      if (match) {
-        const range = { startLineNumber: lineNumber, startColumn: match[0].length + 1, endLineNumber: lineNumber, endColumn: lineContent.length + 1 };
-        if (range.endColumn > range.startColumn) {
-          const sectionHeader = {
-            range,
-            ...getHeaderText(lineContent.substring(match[0].length)),
-            shouldBeInComments: false
-          };
-          if (sectionHeader.text || sectionHeader.hasSeparatorLine) {
-            regionHeaders.push(sectionHeader);
-          }
-        }
-      }
-    }
-    return regionHeaders;
-  }
-  function collectMarkHeaders(model) {
-    const markHeaders = [];
-    const endLineNumber = model.getLineCount();
-    for (let lineNumber = 1; lineNumber <= endLineNumber; lineNumber++) {
-      const lineContent = model.getLineContent(lineNumber);
-      addMarkHeaderIfFound(lineContent, lineNumber, markHeaders);
-    }
-    return markHeaders;
-  }
-  function addMarkHeaderIfFound(lineContent, lineNumber, sectionHeaders) {
-    markRegex.lastIndex = 0;
-    const match = markRegex.exec(lineContent);
-    if (match) {
-      const column = match.indices[1][0] + 1;
-      const endColumn = match.indices[1][1] + 1;
-      const range = { startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn };
-      if (range.endColumn > range.startColumn) {
-        const sectionHeader = {
-          range,
-          ...getHeaderText(match[1]),
-          shouldBeInComments: true
-        };
-        if (sectionHeader.text || sectionHeader.hasSeparatorLine) {
-          sectionHeaders.push(sectionHeader);
-        }
-      }
-    }
-  }
-  function getHeaderText(text) {
-    text = text.trim();
-    const hasSeparatorLine = text.startsWith("-");
-    text = text.replace(trimDashesRegex, "");
-    return { text, hasSeparatorLine };
-  }
-
   // node_modules/monaco-editor/esm/vs/editor/common/services/editorSimpleWorker.js
   var MirrorModel = class extends MirrorTextModel {
     get uri() {
@@ -12369,13 +12214,6 @@
       }
       return UnicodeTextModelHighlighter.computeUnicodeHighlights(model, options, range);
     }
-    async findSectionHeaders(url, options) {
-      const model = this._getModel(url);
-      if (!model) {
-        return [];
-      }
-      return findSectionHeaders(model, options);
-    }
     // ---- BEGIN diff --------------------------------------------------------------------------
     async computeDiff(originalUrl, modifiedUrl, options, algorithm) {
       const original = this._getModel(originalUrl);
@@ -12383,8 +12221,7 @@
       if (!original || !modified) {
         return null;
       }
-      const result = _EditorSimpleWorker.computeDiff(original, modified, options, algorithm);
-      return result;
+      return _EditorSimpleWorker.computeDiff(original, modified, options, algorithm);
     }
     static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
       const diffAlgorithm = algorithm === "advanced" ? linesDiffComputers.getDefault() : linesDiffComputers.getLegacy();

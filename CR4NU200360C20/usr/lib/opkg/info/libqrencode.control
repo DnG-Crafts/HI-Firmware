@@ -1,7 +1,7 @@
 Package: libqrencode
 Version: 4.1.1-1
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/qrencode
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/qrencode
 SourceName: libqrencode
 License: LGPL-2.1-or-later
 LicenseFiles: COPYING

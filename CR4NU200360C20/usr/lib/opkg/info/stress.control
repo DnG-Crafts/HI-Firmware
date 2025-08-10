@@ -1,7 +1,7 @@
 Package: stress
 Version: 1.0.4-2
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/utils/stress
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/utils/stress
 SourceName: stress
 License: GPL-2.0
 LicenseFiles: COPYING

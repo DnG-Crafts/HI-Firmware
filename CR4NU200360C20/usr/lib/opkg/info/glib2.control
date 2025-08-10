@@ -1,7 +1,7 @@
 Package: glib2
 Version: 2.66.4-1
 Depends: libc, librt, libpthread, zlib, libpthread, libffi, libattr
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/glib2
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/glib2
 SourceName: glib2
 License: LGPL-2.1-or-later
 LicenseFiles: COPYING
@@ -10,5 +10,5 @@ SourceDateEpoch: 1688356042
 CPE-ID: cpe:/a:gnome:glib
 Maintainer: Peter Wagner <tripolar@gmx.at>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 927250
+Installed-Size: 927392
 Description:  The GLib library of C routines

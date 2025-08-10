@@ -1,7 +1,7 @@
 ; Flow Detection interval = 22.6
-; Flow Detection Photo Start y = 38
-; Flow Detection Photo Start x = 344
-; Flow Detection End y = 188
+; Flow Detection Photo Start y = 14
+; Flow Detection Photo Start x = 4
+; Flow Detection End y = 164
 ;---------------------End of Head--------------------------
 M140 S60.000000
 M190 S60.000000
@@ -11,6 +11,7 @@ M204 S5000
 M109 S220.000000
 ;M82 ;absolute extrusion mode
 
+M221 base
 G92 E0
 ;G92 E0
 ;G1 F2400 E-0.5
@@ -18,14 +19,14 @@ G92 E0
 G1 Z3.0 F600 
 M83 ; use relative distances for extrusion
 G1 Y2 F12000
-G1 X308 F12000
+G1 Xmin F12000
 ;G1 X308 Y2 F6000
 G1 Z0.20 F600.0
 ;G1 F2400 E0.8
-G1 X358 Y2 E5 F6000.0
-G1 X358 Y52 E5 F6000.0
-G1 X358 Y2 E5 F6000.0
-G1 X308 Y2 E5 F6000.0
+G1 Xmax Y2 E5 F6000.0
+G1 Xmax Y52 E5 F6000.0
+G1 Xmax Y2 E5 F6000.0
+G1 Xmin Y2 E5 F6000.0
 ;G1 Z0.25 F600.0
 ;G1 X298 Y2.2 E15 F3000.0
 G92 E0 
@@ -33,9 +34,10 @@ G92 E0
 G1 Z1 F600
 M82 ;absolute extrusion mode
 ;LAYER_COUNT:2
-G1 X340 Y10 F12000
 
-G92 X280 Y52
+;G1 originX originY F12000
+G92 X280 Y66
+
 ;LAYER:0
 M106 S0
 M106 P1 S255
@@ -88,7 +90,6 @@ G0 F14400 X280.926 Y67.24
 G0 X288.924 Y67.02
 G0 X288.996 Y67.955
 G0 X288.199 Y67.955
-M104 S230
 M106 S63.8
 M106 P2 S0
 M106 P2 S127.5
@@ -1175,7 +1176,7 @@ M83
 M204 S5000
 SET_VELOCITY_LIMIT ACCEL_TO_DECEL=2500
 ;TYPE:WALL-OUTER
-M221 S100
+;M221 segment_lines
 
 G0 X281 Y203.42 Z0.8
 G1 F600 Z0.6
@@ -1256,8 +1257,10 @@ M400
 G1 F2400 E-1
 M204 S20000
 G1 F600 Z5
-G1 X285 F12000
-G92 X345 Y184
+
+G1 X280 F12000
+G1 Y66 F12000
+;G92 originX originY
 
 M106 S0
 M106 P2 S0

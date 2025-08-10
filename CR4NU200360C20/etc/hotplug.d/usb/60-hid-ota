@@ -1,0 +1,58 @@
+#!/bin/sh
+
+HID_PATH="/sys/bus/usb/drivers/usbhid"
+HID_DEV_PATH="/dev/hid/by-id"
+HID_DEV_LOG_PATH=/tmp/hid_script.log
+
+log_echo() {
+    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] $*" >> $HID_DEV_LOG_PATH
+}
+
+[ -z "$DEVPATH" ] && exit 1  # ...... DEVPATH ......
+
+mkdir -p $HID_DEV_PATH
+
+[ -z "$DEVPATH" ] && { log_echo "错误: DEVPATH 为空，退出"; exit 1; }  # ... sysfs ...............
+
+#log_echo "action= $ACTION, device_name: $(basename "$DEVPATH"), $DEVPATH"
+
+# ............... 3-1:1.0 ... HID ............
+case "$DEVPATH" in
+    */usb*/[0-9]-[0-9]:1.*)
+        is_interface=1
+        ;;
+    *)
+        is_interface=0
+        ;;
+esac
+
+[ "$is_interface" != "1" ] && exit 0  # .....................
+
+# DEVICENAME=$(basename "$(dirname "$DEVPATH")")
+DEVICENAME=$(basename "$DEVPATH")  # ...... 3-1:1.0
+USB_DEV_PATH=$(dirname "$DEVPATH")  # 先获取上一级路径
+while [ ! -f "/sys/$USB_DEV_PATH/idVendor" ] && [ "$USB_DEV_PATH" != "/" ]; do
+    USB_DEV_PATH=$(dirname "$USB_DEV_PATH")
+done
+
+#log_echo "Resolved device path: $USB_DEV_PATH"
+
+[ "$ACTION" = "add" ] && [ -d "$HID_PATH/$DEVICENAME" ] && {
+    vendor_id=$(cat /sys/$USB_DEV_PATH/idVendor 2>/dev/null) || { log_echo "错误: 找不到 idVendor"; exit 1; }
+    product_id=$(cat /sys/$USB_DEV_PATH/idProduct 2>/dev/null) || { log_echo "错误: 找不到 idProduct"; exit 1; }
+    device_name="hid-${vendor_id}-${product_id}"
+
+    log_echo "Detected HID device: $device_name"
+    
+    ln -s $HID_PATH/$DEVICENAME $HID_DEV_PATH/$device_name
+    echo $HID_DEV_PATH/$device_name > /tmp/.hid_$DEVICENAME
+    MDEV=$device_name ACTION=add /usr/bin/auto_hid.sh &
+}
+
+[ "$ACTION" = "unbind" ] && [ -f "/tmp/.hid_$DEVICENAME" ] && {
+    node_path=$(cat /tmp/.hid_$DEVICENAME)
+    MDEV=${node_path##*/} ACTION=remove /usr/bin/auto_hid.sh
+    log_echo "Removing HID device: $node_path"
+    rm -f $node_path
+    rm -f /tmp/.hid_$DEVICENAME
+}

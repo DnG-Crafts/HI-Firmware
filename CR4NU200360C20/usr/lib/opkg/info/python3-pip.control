@@ -1,7 +1,7 @@
 Package: python3-pip
 Version: 22.0.4-1
 Depends: libc, librt, libpthread, python3, python3-setuptools, python-pip-conf
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-pip
 License: MIT
 LicenseFiles: LICENSE.txt
@@ -10,5 +10,5 @@ SourceDateEpoch: 1722154739
 CPE-ID: cpe:/a:python:python
 Maintainer: Jeffery To <jeffery.to@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 1914450
+Installed-Size: 1914690
 Description:  Python 3.9 pip module

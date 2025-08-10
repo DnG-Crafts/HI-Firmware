@@ -1,7 +1,7 @@
 Package: python3-pytz
 Version: 2021.3-1
 Depends: libc, librt, libpthread, python3-light
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-pytz
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python-pytz
 SourceName: python3-pytz
 License: MIT
 LicenseFiles: LICENSE.txt

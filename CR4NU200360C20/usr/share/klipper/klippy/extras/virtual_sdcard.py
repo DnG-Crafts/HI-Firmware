@@ -115,6 +115,7 @@ class VirtualSD:
         self.is_cancel = False
         self.count_tn = 0
         self.layer_key = ""
+        self.klipper_capture = False
     def handle_shutdown(self):
         if self.work_timer is not None:
             self.must_pause_work = True
@@ -134,6 +135,7 @@ class VirtualSD:
         self.print_stats.power_loss = 0
         self.count_M204 = 0
         self.fan_state = {}
+        self.klipper_capture = False
     def stats(self, eventtime):
         if self.work_timer is None:
             return False, ""
@@ -173,7 +175,8 @@ class VirtualSD:
             'first_layer_stop':  self.first_layer_stop,
             'layer': self.layer,
             'layer_count': self.layer_count,
-            'run_dis': self.run_dis
+            'run_dis': self.run_dis,
+            'klipper_capture': self.klipper_capture
         }
     def file_path(self):
         if self.current_file:
@@ -210,6 +213,7 @@ class VirtualSD:
         self.count_M204 = 0
         self.layer = 0
         self.layer_count = 0
+        self.klipper_capture = False
         self.fan_state = {}
         self.resume_print_speed()
         if self.current_file is not None:
@@ -320,6 +324,7 @@ class VirtualSD:
             if all(gcode not in cmd_param for gcode in ["M400", "G1", "G2"]) and (frame := gcmd.get_int("P", default=None, minval=10, maxval=20)) and 10 <= frame <= 20:
                 try:
                     import subprocess
+                    self.klipper_capture = True
                     capture_shell ="capture 0"
                     logging.info(capture_shell)
                     capture_ret = subprocess.check_output(capture_shell, shell=True).decode("utf-8")
@@ -979,6 +984,7 @@ class VirtualSD:
         self.count_line = 0
         self.count_G1 = 0 
         self.eepromWriteCount = 1
+        self.klipper_capture = False
         gcode_move = self.printer.lookup_object('gcode_move', None)
         delay_photography_switch, location, frame, interval, power_loss_switch = self.get_delay_photography_info()
         bl24c16f = self.printer.lookup_object('bl24c16f') if "bl24c16f" in self.printer.objects and power_loss_switch else None
@@ -1076,6 +1082,7 @@ class VirtualSD:
                     self.count_M204 = 0
                     self.layer = 0
                     self.layer_count = 0
+                    self.klipper_capture = False
                     self.fan_state = {}
                     self.update_print_history_info(only_update_status=True, state="completed")
                     if self.print_id and not self.end_print_state and os.path.exists("/tmp/camera_main"):
@@ -1160,6 +1167,7 @@ class VirtualSD:
         self.eepromWriteCount = 1
         self.work_timer = None
         self.cmd_from_sd = False
+        self.klipper_capture = False
         if error_message is not None:
             self.print_stats.note_error(error_message)
         elif self.current_file is not None:

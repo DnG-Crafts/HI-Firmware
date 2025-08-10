@@ -14,6 +14,7 @@
 /lib/preinit/70_initramfs_test
 /etc/rc.button/reboot
 /etc/device_info
+/usr/bin/chamber_cam_power.sh
 /rdinit
 /etc/protocols
 /etc/uci-defaults/12_network-generate-ula
@@ -84,7 +85,6 @@
 /etc/iproute2/rt_tables
 /etc/config/network
 /lib/functions/leds.sh
-/usr/bin/kongda_detect.tar.gz
 /rom/note
 /etc/inittab
 /etc/openwrt_release

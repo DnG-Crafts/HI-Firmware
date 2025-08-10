@@ -1,7 +1,7 @@
 Package: python3-ncurses
 Version: 3.9.12-1
 Depends: libc, librt, libpthread, python3-light, libncursesw6
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python3
 SourceName: python3-ncurses
 License: Python/2.0
 LicenseFiles: LICENSE Doc/copyright.rst Doc/license.rst Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi_osx/LICENSE Modules/expat/COPYING

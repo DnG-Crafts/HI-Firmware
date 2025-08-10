@@ -135,16 +135,6 @@ copy_config()
             gcode_dir=F010
             ;;
 
-        "F011")
-            if [[ "$board" =~ "CR4NU200360C2" ]]; then
-                config_dir=F011_CR4NU200360C20
-            else
-                config_dir=
-            fi
-
-            gcode_dir=F011
-            ;;
-
         "F018")
             if [[ "$board" =~ "CR4NU200360C2" ]]; then
                 config_dir=F018_CR4NU200360C20
@@ -198,7 +188,7 @@ copy_config()
                 }
             }
 
-	    [ -f $PRINTER_CONFIG_DIR/motor_control.cfg ] || {
+            [ -f $PRINTER_CONFIG_DIR/motor_control.cfg ] || {
                 [ -f ${CONFIG_PATH}/motor_control.cfg ] && {
                     echo "no motor_control.cfg, so copy"
                     cp -af ${CONFIG_PATH}/motor_control.cfg $PRINTER_CONFIG_DIR/

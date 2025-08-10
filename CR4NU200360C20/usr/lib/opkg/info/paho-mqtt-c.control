@@ -1,7 +1,7 @@
 Package: paho-mqtt-c
 Version: 1.3.1-1
 Depends: libc, librt, libpthread, libopenssl1.1
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/creality/paho-mqtt-c
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/creality/paho-mqtt-c
 SourceName: paho-mqtt-c
 License: Eclipse Public License - v 2.0
 LicenseFiles: LICENSE
@@ -9,5 +9,5 @@ Section: creality
 SourceDateEpoch: 1703128733
 Maintainer: Rosen Penev <rosenp@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 251850
+Installed-Size: 251870
 Description:  An MQTT client library in C.© Copyright 2009, 2023 IBM Corp., Ian Craggs and others

@@ -2,7 +2,7 @@ Package: libsqlite3-0
 Version: 3310100-1
 Depends: libc, librt, libpthread, libpthread, zlib
 Provides: libsqlite3
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/libs/sqlite3
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/libs/sqlite3
 SourceName: libsqlite3
 License: PUBLICDOMAIN
 Section: libs

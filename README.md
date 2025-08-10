@@ -15,6 +15,10 @@ Files: <a href=https://github.com/DnG-Crafts/HI-Firmware/tree/18f8a8312103233271
 Image: <a href=https://file2-cdn.creality.com/file/02ac328ace09e34722ad394b0ec6e54e/CR4NU200360C20_ota_img_V1.1.0.45.img>CR4NU200360C20_ota_img_V1.1.0.45.img</a><br>
 
 ## Version 1.1.0.47
-Files: <a href=https://github.com/DnG-Crafts/HI-Firmware>CR4NU200360C20_ota_img_V1.1.0.47</a><br>
+Files: <a href=https://github.com/DnG-Crafts/HI-Firmware/tree/37d8b20f4eadca907fd525608d583f7278e656c9>CR4NU200360C20_ota_img_V1.1.0.47</a><br>
 Image: <a href=https://file2-cdn.creality.com/file/0fcbb8a0027868ee51686bad956beacb/CR4NU200360C20_ota_img_V1.1.0.47.img>CR4NU200360C20_ota_img_V1.1.0.47.img</a><br>
+
+## Version 1.1.0.48
+Files: <a href=https://github.com/DnG-Crafts/HI-Firmware>CR4NU200360C20_ota_img_V1.1.0.48</a><br>
+Image: <a href=https://file2-cdn.creality.com/file/45cd15af5d002e81162d39245bd19990/CR4NU200360C20_ota_img_V1.1.0.48.img>CR4NU200360C20_ota_img_V1.1.0.48.img</a><br>
 

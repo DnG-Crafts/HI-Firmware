@@ -1,7 +1,7 @@
 Package: python-pip-conf
 Version: 0.1-1
 Depends: libc, librt, libpthread
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python-pip-conf
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python-pip-conf
 SourceName: python-pip-conf
 Section: lang
 SourceDateEpoch: 1688356042

@@ -1,7 +1,7 @@
 Package: python3-pyinotify
 Version: 0.9.6-1
 Depends: libc, librt, libpthread, python3-light, python3-ctypes, python3-logging
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/python3-pyinotify
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/python3-pyinotify
 SourceName: python3-pyinotify
 License: MIT
 LicenseFiles: COPYING

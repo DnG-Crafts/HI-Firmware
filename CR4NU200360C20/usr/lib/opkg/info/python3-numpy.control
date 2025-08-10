@@ -1,7 +1,7 @@
 Package: python3-numpy
 Version: 1.20.1-1
 Depends: libc, librt, libpthread, python3
-Source: /opt/liyongjie/gerrit/kl_C4408_V2/openwrt/package/feeds/lang/python/numpy
+Source: /data/111593/gerrit_new/t113_i/kl_C4408_V2/openwrt/package/feeds/lang/python/numpy
 SourceName: python3-numpy
 License: BSD-3-Clause
 LicenseFiles: LICENSE.txt
@@ -10,7 +10,7 @@ SourceDateEpoch: 1697631059
 CPE-ID: cpe:/a:numpy:numpy
 Maintainer: Alexandru Ardelean <ardeleanalex@gmail.com>
 Architecture: arm_cortex-a7_neon
-Installed-Size: 5800459
+Installed-Size: 5800445
 Description:  NumPy is the fundamental package for array computing with Python.
  
  By default, this package is built without some modules.
